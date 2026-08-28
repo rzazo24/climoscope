@@ -1,38 +1,38 @@
 # climoscope
 
-Una app de clima minimalista, en HTML/CSS/JS puro — sin frameworks, sin build tools, sin API key. Usa la [API de Open-Meteo](https://open-meteo.com/) para geocoding y pronóstico.
+A minimalist weather app in plain HTML/CSS/JS — no frameworks, no build tools, no API key. Uses the [Open-Meteo API](https://open-meteo.com/) for geocoding and forecasts.
 
 🔗 **[climoscope-drab.vercel.app](https://climoscope-drab.vercel.app/)**
 
-## Funcionalidad
+## Features
 
-- Buscador de ciudades con autocompletado
-- Ciudades recientes, persistidas en `localStorage`
-- Clima actual: temperatura, sensación térmica, humedad y viento (con brújula SVG)
-- Pronóstico por horas (próximas 24h)
-- Pronóstico de 7 días
-- Toggle °C/°F
-- Toggle de idioma EN/ES (la app carga en inglés por defecto)
-- Fondo dinámico según el clima y la hora del día
+- City search with autocomplete
+- Recent cities, persisted in `localStorage`
+- Current weather: temperature, feels-like, humidity, and wind (with SVG compass)
+- Hourly forecast (next 24h)
+- 7-day forecast
+- °C/°F toggle
+- EN/ES language toggle (app loads in English by default)
+- Dynamic background based on weather and time of day
 
-## Cómo correrlo localmente
+## Running it locally
 
-No hay build ni dependencias que instalar. Como los archivos usan `fetch` y rutas relativas, hace falta servirlos por HTTP (abrir `index.html` directo con `file://` puede fallar por CORS en algunos navegadores). Cualquier servidor estático sirve, por ejemplo:
+No build step or dependencies to install. Since the files use `fetch` and relative paths, they need to be served over HTTP (opening `index.html` directly via `file://` can fail due to CORS in some browsers). Any static server works, for example:
 
 ```bash
 python3 -m http.server 8000
 ```
 
-y abrir `http://localhost:8000` en el navegador.
+then open `http://localhost:8000` in your browser.
 
-## Estructura
+## Structure
 
 ```
-index.html       estructura de la página
-css/style.css     estilos
-js/app.js         lógica: geocoding, fetch de clima, render, estado
+index.html       page structure
+css/style.css     styles
+js/app.js         logic: geocoding, weather fetch, render, state
 ```
 
-## Despliegue
+## Deployment
 
-Publicado en [Vercel](https://vercel.com/) como sitio estático, importado directamente desde este repo (sin build command ni output directory personalizados — Vercel sirve `index.html` desde la raíz tal cual). Cada push a `main` despliega automáticamente en https://climoscope-drab.vercel.app/.
+Published on [Vercel](https://vercel.com/) as a static site, imported directly from this repo (no custom build command or output directory — Vercel serves `index.html` from the root as-is). Every push to `main` deploys automatically to https://climoscope-drab.vercel.app/.
