@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,8 +16,9 @@
 
   <div class="search-wrap">
     <div class="search-row">
-      <input id="cityInput" type="text" placeholder="Buscar ciudad..." autocomplete="off">
-      <button id="unitToggle">°C</button>
+      <input id="cityInput" type="text" placeholder="Search city..." autocomplete="off">
+      <button id="unitToggle" class="toggle-btn">°C</button>
+      <button id="langToggle" class="toggle-btn" aria-label="Switch language">EN</button>
     </div>
     <div class="suggestions" id="suggestions"></div>
   </div>
@@ -25,20 +26,20 @@
   <div class="recent-row" id="recentRow"></div>
 
   <div class="panel" id="mainPanel">
-    <div class="status-line">Busca una ciudad para empezar</div>
+    <div class="status-line">Search a city to start</div>
   </div>
 
   <div class="panel" id="hourlyPanel" style="display:none;">
-    <div class="section-title">Próximas horas</div>
+    <div class="section-title">Next hours</div>
     <div class="hourly-scroll" id="hourlyScroll"></div>
   </div>
 
   <div class="panel" id="dailyPanel" style="display:none;">
-    <div class="section-title">7 días</div>
+    <div class="section-title">7 days</div>
     <div class="daily-list" id="dailyList"></div>
   </div>
 
-  <footer>Datos de Open-Meteo · sin registro, sin clave de API</footer>
+  <footer>Data from Open-Meteo · no sign-up, no API key</footer>
 </div>
 
 <script src="js/app.js"></script>

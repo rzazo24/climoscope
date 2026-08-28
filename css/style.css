@@ -84,7 +84,7 @@ input#cityInput {
 input#cityInput:focus { border-color: var(--amber); }
 input#cityInput::placeholder { color: var(--text-dim); }
 
-#unitToggle {
+.toggle-btn {
   background: var(--panel);
   border: 1px solid var(--panel-line);
   border-radius: 10px;
@@ -94,7 +94,7 @@ input#cityInput::placeholder { color: var(--text-dim); }
   padding: 0 16px;
   cursor: pointer;
 }
-#unitToggle:hover { color: var(--amber); border-color: var(--amber); }
+.toggle-btn:hover { color: var(--amber); border-color: var(--amber); }
 
 .suggestions {
   position: absolute;
