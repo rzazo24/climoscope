@@ -345,6 +345,9 @@ footer {
   letter-spacing: 0.04em;
 }
 footer a { color: var(--text-dim); }
+footer a:hover { color: var(--amber); }
+
+footer .credit { margin-top: 6px; }
 
 @media (max-width: 480px) {
   .metrics { grid-template-columns: repeat(2, 1fr); row-gap: 16px; }

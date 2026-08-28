@@ -256,7 +256,7 @@ function applyStaticText() {
   cityInput.placeholder = t('placeholder');
   document.querySelector('#hourlyPanel .section-title').textContent = t('hoursTitle');
   document.querySelector('#dailyPanel .section-title').textContent = t('daysTitle');
-  document.querySelector('footer').textContent = t('footer');
+  document.getElementById('footerText').textContent = t('footer');
   if (!lastData) {
     mainPanel.innerHTML = `<div class="status-line">${t('startMessage')}</div>`;
   }
