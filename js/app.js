@@ -9,6 +9,7 @@ const dailyList = document.getElementById('dailyList');
 const unitToggle = document.getElementById('unitToggle');
 const langToggle = document.getElementById('langToggle');
 const clockNow = document.getElementById('clockNow');
+const starsLayer = document.getElementById('starsLayer');
 
 const RECENT_KEY = 'climoscope:recent';
 const RECENT_MAX = 5;
@@ -119,18 +120,38 @@ function updateClock(tz) {
 }
 
 function setSky(code, isDay) {
-  let a = '#16233b', b = '#0b1220';
+  const isFog = code === 45 || code === 48;
+  const isDrizzleRain = (code >= 51 && code <= 67) || (code >= 80 && code <= 82);
+  const isSnow = (code >= 71 && code <= 77) || code === 85 || code === 86;
+  const isStorm = code >= 95;
+  const isCloudy = code === 2 || code === 3;
+  const isClear = code === 0 || code === 1;
+
+  let a, b, glow, stars = false;
+
   if (isDay) {
-    if (code === 0 || code === 1) { a = '#2f5f8f'; b = '#0d1a2b'; }
-    else if (code === 2 || code === 3) { a = '#33465e'; b = '#101826'; }
-    else if (code >= 61 && code <= 86) { a = '#2b3b4d'; b = '#0d1420'; }
-    else if (code >= 95) { a = '#241f33'; b = '#0a0a12'; }
-    else { a = '#2f4a63'; b = '#0d1a2b'; }
+    if (isClear) { a = '#3a6ea8'; b = '#0d1a2b'; glow = 'var(--amber)'; }
+    else if (isCloudy) { a = '#3d5068'; b = '#101826'; glow = '#9fb8d1'; }
+    else if (isFog) { a = '#4a5568'; b = '#161d29'; glow = '#c9d3de'; }
+    else if (isDrizzleRain) { a = '#314a5f'; b = '#0d1420'; glow = 'var(--cool)'; }
+    else if (isSnow) { a = '#44576f'; b = '#141d2b'; glow = '#e3edf7'; }
+    else if (isStorm) { a = '#2b2340'; b = '#0a0a12'; glow = '#9b7fe0'; }
+    else { a = '#2f4a63'; b = '#0d1a2b'; glow = '#5a7ea0'; }
   } else {
-    a = '#0e1626'; b = '#05080f';
+    if (isClear) { a = '#141f36'; b = '#04060c'; glow = '#8fb3e0'; stars = true; }
+    else if (isCloudy) { a = '#161e2c'; b = '#05070c'; glow = '#4a5568'; }
+    else if (isFog) { a = '#1c2532'; b = '#070a0f'; glow = '#6b7889'; }
+    else if (isDrizzleRain) { a = '#101a24'; b = '#04070b'; glow = '#3d6b80'; }
+    else if (isSnow) { a = '#182234'; b = '#05080e'; glow = '#7c96b8'; }
+    else if (isStorm) { a = '#1a1228'; b = '#040308'; glow = '#6c4fb0'; }
+    else { a = '#0e1626'; b = '#04060b'; glow = '#3a4a5e'; }
   }
-  document.documentElement.style.setProperty('--sky-a', a);
-  document.documentElement.style.setProperty('--sky-b', b);
+
+  const root = document.documentElement;
+  root.style.setProperty('--sky-a', a);
+  root.style.setProperty('--sky-b', b);
+  root.style.setProperty('--sky-glow', glow);
+  starsLayer.classList.toggle('visible', stars);
 }
 
 // ---------- Geocoding autocomplete ----------

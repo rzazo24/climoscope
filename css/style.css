@@ -11,6 +11,7 @@
   --text-dim: #8b98ad;
   --sky-a: #16233b;
   --sky-b: #0b1220;
+  --sky-glow: #3a4a5e;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -21,15 +22,42 @@ html {
 
 body {
   font-family: 'IBM Plex Mono', monospace;
-  background: radial-gradient(ellipse 120% 80% at 50% -10%, var(--sky-a), var(--sky-b) 65%);
+  background:
+    radial-gradient(ellipse 55% 40% at 82% 0%, var(--sky-glow), transparent 60%),
+    radial-gradient(ellipse 120% 80% at 50% -10%, var(--sky-a), var(--sky-b) 65%);
+  background-color: var(--sky-b);
   color: var(--text);
   min-height: 100vh;
   display: flex;
   align-items: flex-start;
   justify-content: center;
   padding: 40px 20px 60px;
-  transition: background 1s ease;
+  transition: background 1.2s ease;
 }
+
+.stars-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+  background-repeat: no-repeat;
+  background-image:
+    radial-gradient(1.6px 1.6px at 12% 22%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 28% 62%, #fff, transparent),
+    radial-gradient(1.8px 1.8px at 45% 15%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 58% 78%, #fff, transparent),
+    radial-gradient(1.4px 1.4px at 72% 35%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 85% 60%, #fff, transparent),
+    radial-gradient(1.6px 1.6px at 93% 18%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 20% 88%, #fff, transparent),
+    radial-gradient(1.4px 1.4px at 65% 92%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 8% 55%, #fff, transparent),
+    radial-gradient(1.3px 1.3px at 38% 40%, #fff, transparent),
+    radial-gradient(1.1px 1.1px at 50% 8%, #fff, transparent);
+}
+
+.stars-layer.visible { opacity: 0.7; }
 
 .app {
   width: 100%;
