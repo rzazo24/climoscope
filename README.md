@@ -10,6 +10,7 @@ Una app de clima minimalista, en HTML/CSS/JS puro — sin frameworks, sin build 
 - Pronóstico por horas (próximas 24h)
 - Pronóstico de 7 días
 - Toggle °C/°F
+- Toggle de idioma EN/ES (la app carga en inglés por defecto)
 - Fondo dinámico según el clima y la hora del día
 
 ## Cómo correrlo localmente
@@ -32,4 +33,4 @@ js/app.js         lógica: geocoding, fetch de clima, render, estado
 
 ## Despliegue
 
-Publicado en GitHub Pages desde la rama `main`, sirviendo desde la raíz del repo (no requiere build).
+Publicado en [Vercel](https://vercel.com/) como sitio estático, importado directamente desde este repo (sin build command ni output directory personalizados — Vercel sirve `index.html` desde la raíz tal cual). Cada push a `main` despliega automáticamente.
