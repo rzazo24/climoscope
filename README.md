@@ -2,6 +2,8 @@
 
 Una app de clima minimalista, en HTML/CSS/JS puro — sin frameworks, sin build tools, sin API key. Usa la [API de Open-Meteo](https://open-meteo.com/) para geocoding y pronóstico.
 
+🔗 **[climoscope-drab.vercel.app](https://climoscope-drab.vercel.app/)**
+
 ## Funcionalidad
 
 - Buscador de ciudades con autocompletado
@@ -33,4 +35,4 @@ js/app.js         lógica: geocoding, fetch de clima, render, estado
 
 ## Despliegue
 
-Publicado en [Vercel](https://vercel.com/) como sitio estático, importado directamente desde este repo (sin build command ni output directory personalizados — Vercel sirve `index.html` desde la raíz tal cual). Cada push a `main` despliega automáticamente.
+Publicado en [Vercel](https://vercel.com/) como sitio estático, importado directamente desde este repo (sin build command ni output directory personalizados — Vercel sirve `index.html` desde la raíz tal cual). Cada push a `main` despliega automáticamente en https://climoscope-drab.vercel.app/.
