@@ -4,6 +4,8 @@ A minimalist weather app in plain HTML/CSS/JS — no frameworks, no build tools,
 
 🔗 **[climoscope-drab.vercel.app](https://climoscope-drab.vercel.app/)**
 
+![climoscope screenshot](docs/screenshot.png)
+
 ## Features
 
 - City search with autocomplete
