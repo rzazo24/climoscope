@@ -64,6 +64,12 @@ body {
   max-width: 620px;
 }
 
+@media (min-width: 900px) {
+  .app {
+    max-width: 760px;
+  }
+}
+
 /* ---------- Header / Search ---------- */
 .masthead {
   display: flex;
