@@ -10,7 +10,6 @@ A minimalist weather app in plain HTML/CSS/JS — no frameworks, no build tools,
 
 - City search with autocomplete
 - Favorite cities (star a city, persisted in `localStorage`)
-- Recent cities, persisted in `localStorage`
 - Current weather: temperature, feels-like, humidity, wind + gusts (with SVG compass), pressure, UV index, and air quality (European AQI)
 - Sunrise and sunset
 - Hourly forecast (next 24h), with rain probability
