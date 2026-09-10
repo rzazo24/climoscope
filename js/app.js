@@ -1,4 +1,5 @@
 const cityInput = document.getElementById('cityInput');
+const geoBtn = document.getElementById('geoBtn');
 const suggestionsEl = document.getElementById('suggestions');
 const favoritesSection = document.getElementById('favoritesSection');
 const favoritesRow = document.getElementById('favoritesRow');
@@ -78,6 +79,10 @@ const STRINGS = {
     locale: 'en-US',
     favoritesTitle: 'Favorites',
     favoriteAria: 'Toggle favorite',
+    geoAria: 'Use my location',
+    locating: 'Locating...',
+    myLocation: 'My location',
+    geoError: 'Could not get your location. Check permissions and try again.',
   },
   es: {
     placeholder: 'Buscar ciudad...',
@@ -103,6 +108,10 @@ const STRINGS = {
     locale: 'es-ES',
     favoritesTitle: 'Favoritos',
     favoriteAria: 'Marcar como favorito',
+    geoAria: 'Usar mi ubicación',
+    locating: 'Localizando...',
+    myLocation: 'Mi ubicación',
+    geoError: 'No se pudo obtener tu ubicación. Revisa los permisos e inténtalo de nuevo.',
   },
 };
 
@@ -199,6 +208,31 @@ document.addEventListener('click', (e) => {
   if (!suggestionsEl.contains(e.target) && e.target !== cityInput) {
     suggestionsEl.classList.remove('open');
   }
+});
+
+// ---------- Geolocation ----------
+if (!('geolocation' in navigator)) {
+  geoBtn.style.display = 'none';
+}
+
+geoBtn.addEventListener('click', () => {
+  geoBtn.disabled = true;
+  mainPanel.innerHTML = `<div class="status-line">${t('locating')}</div>`;
+  hourlyPanel.style.display = 'none';
+  dailyPanel.style.display = 'none';
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      geoBtn.disabled = false;
+      loadWeather(pos.coords.latitude, pos.coords.longitude, t('myLocation'), '');
+    },
+    (err) => {
+      geoBtn.disabled = false;
+      console.error(err);
+      mainPanel.innerHTML = `<div class="status-line error">${t('geoError')}</div>`;
+    },
+    { timeout: 10000 }
+  );
 });
 
 async function fetchSuggestions(q) {
@@ -307,6 +341,7 @@ function applyStaticText() {
   document.documentElement.lang = lang;
   langToggle.textContent = lang.toUpperCase();
   cityInput.placeholder = t('placeholder');
+  geoBtn.setAttribute('aria-label', t('geoAria'));
   document.querySelector('#hourlyPanel .section-title').textContent = t('hoursTitle');
   document.querySelector('#dailyPanel .section-title').textContent = t('daysTitle');
   document.getElementById('favoritesTitle').textContent = t('favoritesTitle');

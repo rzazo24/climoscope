@@ -123,6 +123,7 @@ input#cityInput::placeholder { color: var(--text-dim); }
   cursor: pointer;
 }
 .toggle-btn:hover { color: var(--amber); border-color: var(--amber); }
+.toggle-btn:disabled { opacity: 0.5; cursor: default; }
 
 .suggestions {
   position: absolute;
