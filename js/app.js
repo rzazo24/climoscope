@@ -423,3 +423,9 @@ applyStaticText();
 renderRecent();
 loadWeather(40.4168, -3.7038, 'Madrid', 'Spain');
 setInterval(() => { if (lastData) updateClock(lastData.data.timezone); }, 30000);
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
