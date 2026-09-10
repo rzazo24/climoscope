@@ -61,13 +61,7 @@ body {
 
 .app {
   width: 100%;
-  max-width: 620px;
-}
-
-@media (min-width: 900px) {
-  .app {
-    max-width: 760px;
-  }
+  max-width: min(880px, 94vw);
 }
 
 /* ---------- Header / Search ---------- */
