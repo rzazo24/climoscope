@@ -354,7 +354,9 @@ input#cityInput::placeholder { color: var(--text-dim); }
   position: absolute;
   bottom: 0;
   width: 100%;
-  background: var(--cool);
+  background: linear-gradient(to top, var(--cool), var(--amber));
+  background-size: 100% 40px;
+  background-position: bottom;
   border-radius: 2px;
 }
 
