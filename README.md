@@ -10,7 +10,7 @@ A minimalist weather app in plain HTML/CSS/JS — no frameworks, no build tools,
 
 - City search with autocomplete
 - Recent cities, persisted in `localStorage`
-- Current weather: temperature, feels-like, humidity, and wind (with SVG compass)
+- Current weather: temperature, feels-like, humidity, wind (with SVG compass), UV index, and air quality (European AQI)
 - Hourly forecast (next 24h)
 - 7-day forecast
 - °C/°F toggle

@@ -240,8 +240,8 @@ input#cityInput::placeholder { color: var(--text-dim); }
 
 .metrics {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px 12px;
   padding-top: 22px;
   border-top: 1px solid var(--panel-line);
 }

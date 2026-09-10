@@ -66,6 +66,8 @@ const STRINGS = {
     feelsLike: 'Feels like',
     humidity: 'Humidity',
     wind: 'Wind',
+    uvIndex: 'UV index',
+    airQuality: 'Air quality',
     now: 'Now',
     today: 'Today',
     footer: 'Data from Open-Meteo · no sign-up, no API key',
@@ -83,6 +85,8 @@ const STRINGS = {
     feelsLike: 'Sensación',
     humidity: 'Humedad',
     wind: 'Viento',
+    uvIndex: 'Índice UV',
+    airQuality: 'Calidad del aire',
     now: 'Ahora',
     today: 'Hoy',
     footer: 'Datos de Open-Meteo · sin registro, sin clave de API',
@@ -299,10 +303,15 @@ async function loadWeather(lat, lon, name, country) {
   try {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
       `&current=temperature_2m,weathercode,is_day,relative_humidity_2m,wind_speed_10m,wind_direction_10m,apparent_temperature` +
-      `&hourly=temperature_2m,weathercode,precipitation_probability` +
+      `&hourly=temperature_2m,weathercode,precipitation_probability,uv_index` +
       `&daily=temperature_2m_max,temperature_2m_min,weathercode` +
       `&timezone=auto&forecast_days=7`;
-    const res = await fetch(url);
+    const airQualityUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}` +
+      `&current=european_aqi&timezone=auto`;
+
+    // Air quality is a bonus metric: fetched alongside the forecast but never allowed
+    // to fail the whole request — if it errors out we just show '—' for that metric.
+    const [res, airRes] = await Promise.all([fetch(url), fetch(airQualityUrl).catch(() => null)]);
     if (requestId !== weatherRequestId) return; // a newer city selection already superseded this request
 
     const data = await res.json();
@@ -310,7 +319,17 @@ async function loadWeather(lat, lon, name, country) {
       throw new Error(data.reason || `Forecast API responded ${res.status}`);
     }
 
-    lastData = { data, name, country, lat, lon };
+    let airQuality = null;
+    try {
+      if (airRes && airRes.ok) {
+        const airData = await airRes.json();
+        if (!airData.error && airData.current) airQuality = airData.current.european_aqi;
+      }
+    } catch (e) {
+      console.warn('Air quality unavailable', e);
+    }
+
+    lastData = { data, airQuality, name, country, lat, lon };
     addRecent(name, country, lat, lon);
     renderAll(lastData);
   } catch (e) {
@@ -320,7 +339,7 @@ async function loadWeather(lat, lon, name, country) {
   }
 }
 
-function renderAll({ data, name, country }) {
+function renderAll({ data, airQuality, name, country }) {
   const cur = data.current;
   const daily = data.daily;
   const hourly = data.hourly;
@@ -331,6 +350,11 @@ function renderAll({ data, name, country }) {
 
   // Compass rotation for wind direction
   const windDeg = cur.wind_direction_10m || 0;
+
+  // Current-hour index, reused below both for the UV reading and the hourly strip
+  const now = new Date();
+  const currentHourIdx = Math.max(0, hourly.time.findIndex(time => new Date(time) >= now));
+  const uvIndex = hourly.uv_index ? hourly.uv_index[currentHourIdx] : null;
 
   mainPanel.innerHTML = `
     <div class="primary">
@@ -361,13 +385,19 @@ function renderAll({ data, name, country }) {
           </g>
         </svg>
       </div>
+      <div class="metric">
+        <div class="val">${uvIndex != null ? Math.round(uvIndex) : '—'}</div>
+        <div class="lbl">${t('uvIndex')}</div>
+      </div>
+      <div class="metric">
+        <div class="val">${airQuality != null ? Math.round(airQuality) : '—'}</div>
+        <div class="lbl">${t('airQuality')}</div>
+      </div>
     </div>
   `;
 
   // Hourly: next 24h starting from current hour
-  const now = new Date();
-  const currentHourIdx = hourly.time.findIndex(t => new Date(t) >= now);
-  const startIdx = currentHourIdx >= 0 ? currentHourIdx : 0;
+  const startIdx = currentHourIdx;
   const hoursSlice = hourly.time.slice(startIdx, startIdx + 24);
   const temps = hourly.temperature_2m.slice(startIdx, startIdx + 24);
   const codes = hourly.weathercode.slice(startIdx, startIdx + 24);
