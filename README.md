@@ -13,7 +13,7 @@ A minimalist weather app in plain HTML/CSS/JS — no frameworks, no build tools,
 - Current weather: temperature, feels-like, humidity, wind + gusts (with SVG compass), pressure, UV index, and air quality (European AQI)
 - Sunrise and sunset
 - Hourly forecast (next 24h), with rain probability
-- 7-day forecast
+- 7-day forecast, with daily max rain probability
 - °C/°F toggle
 - EN/ES language toggle (app loads in English by default)
 - Dynamic background based on weather and time of day

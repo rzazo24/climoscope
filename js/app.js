@@ -389,7 +389,7 @@ async function loadWeather(lat, lon, name, country) {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
       `&current=temperature_2m,weathercode,is_day,relative_humidity_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,pressure_msl,apparent_temperature` +
       `&hourly=temperature_2m,weathercode,precipitation_probability,uv_index` +
-      `&daily=temperature_2m_max,temperature_2m_min,weathercode,sunrise,sunset` +
+      `&daily=temperature_2m_max,temperature_2m_min,weathercode,sunrise,sunset,precipitation_probability_max` +
       `&timezone=auto&forecast_days=7`;
     const airQualityUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}` +
       `&current=european_aqi&timezone=auto`;
@@ -548,6 +548,7 @@ function renderAll({ data, airQuality, name, country, lat, lon }) {
       <div class="day-row">
         <div class="d-name">${dayLabel}</div>
         <div class="d-icon">${dIcon}</div>
+        <div class="d-precip">${daily.precipitation_probability_max[i] > 0 ? daily.precipitation_probability_max[i] + '%' : ''}</div>
         <div class="d-range">
           <span class="d-min">${fmtTemp(daily.temperature_2m_min[i])}</span>
           <div class="bar-track"><div class="bar-fill" style="left:${left}%; width:${Math.max(width,6)}%"></div></div>

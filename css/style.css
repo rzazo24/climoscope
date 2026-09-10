@@ -371,7 +371,7 @@ input#cityInput::placeholder { color: var(--text-dim); }
 
 .day-row {
   display: grid;
-  grid-template-columns: 90px 1fr auto;
+  grid-template-columns: 90px 1fr 36px auto;
   align-items: center;
   gap: 14px;
   padding: 10px 0;
@@ -383,6 +383,7 @@ input#cityInput::placeholder { color: var(--text-dim); }
 
 .day-row .d-name { color: var(--text-dim); }
 .day-row .d-icon { text-align: center; font-size: 1rem; }
+.day-row .d-precip { text-align: center; font-size: 0.72rem; color: var(--cool); }
 
 .day-row .d-range {
   display: flex;
