@@ -66,6 +66,8 @@ const STRINGS = {
     feelsLike: 'Feels like',
     humidity: 'Humidity',
     wind: 'Wind',
+    gusts: 'Gusts',
+    pressure: 'Pressure',
     uvIndex: 'UV index',
     airQuality: 'Air quality',
     sunrise: 'Sunrise',
@@ -87,6 +89,8 @@ const STRINGS = {
     feelsLike: 'Sensación',
     humidity: 'Humedad',
     wind: 'Viento',
+    gusts: 'Ráfagas',
+    pressure: 'Presión',
     uvIndex: 'Índice UV',
     airQuality: 'Calidad del aire',
     sunrise: 'Amanecer',
@@ -313,7 +317,7 @@ async function loadWeather(lat, lon, name, country) {
 
   try {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
-      `&current=temperature_2m,weathercode,is_day,relative_humidity_2m,wind_speed_10m,wind_direction_10m,apparent_temperature` +
+      `&current=temperature_2m,weathercode,is_day,relative_humidity_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,pressure_msl,apparent_temperature` +
       `&hourly=temperature_2m,weathercode,precipitation_probability,uv_index` +
       `&daily=temperature_2m_max,temperature_2m_min,weathercode,sunrise,sunset` +
       `&timezone=auto&forecast_days=7`;
@@ -388,6 +392,10 @@ function renderAll({ data, airQuality, name, country }) {
         <div class="val">${Math.round(cur.wind_speed_10m)} km/h</div>
         <div class="lbl">${t('wind')}</div>
       </div>
+      <div class="metric">
+        <div class="val">${Math.round(cur.wind_gusts_10m)} km/h</div>
+        <div class="lbl">${t('gusts')}</div>
+      </div>
       <div class="metric compass-wrap">
         <svg width="34" height="34" viewBox="0 0 34 34">
           <circle cx="17" cy="17" r="15" fill="none" stroke="var(--panel-line)" stroke-width="1.5"/>
@@ -403,6 +411,10 @@ function renderAll({ data, airQuality, name, country }) {
       <div class="metric">
         <div class="val">${airQuality != null ? Math.round(airQuality) : '—'}</div>
         <div class="lbl">${t('airQuality')}</div>
+      </div>
+      <div class="metric">
+        <div class="val">${Math.round(cur.pressure_msl)} hPa</div>
+        <div class="lbl">${t('pressure')}</div>
       </div>
     </div>
     <div class="sun-row">
