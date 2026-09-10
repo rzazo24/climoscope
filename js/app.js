@@ -1,5 +1,8 @@
 const cityInput = document.getElementById('cityInput');
 const suggestionsEl = document.getElementById('suggestions');
+const favoritesSection = document.getElementById('favoritesSection');
+const favoritesRow = document.getElementById('favoritesRow');
+const recentSection = document.getElementById('recentSection');
 const recentRow = document.getElementById('recentRow');
 const mainPanel = document.getElementById('mainPanel');
 const hourlyPanel = document.getElementById('hourlyPanel');
@@ -13,11 +16,13 @@ const starsLayer = document.getElementById('starsLayer');
 
 const RECENT_KEY = 'climoscope:recent';
 const RECENT_MAX = 5;
+const FAVORITES_KEY = 'climoscope:favorites';
 
 let unit = 'C'; // C or F
 let lang = 'en'; // 'en' or 'es' — always starts in English, not persisted across reloads
 let lastData = null; // cache of last fetched raw data for unit re-render
 let recentCities = loadRecent();
+let favoriteCities = loadFavorites();
 let searchDebounce = null;
 let searchRequestId = 0; // guards against out-of-order autocomplete responses
 let weatherRequestId = 0; // guards against out-of-order weather responses
@@ -76,6 +81,9 @@ const STRINGS = {
     today: 'Today',
     footer: 'Data from Open-Meteo · no sign-up, no API key',
     locale: 'en-US',
+    favoritesTitle: 'Favorites',
+    recentTitle: 'Recent',
+    favoriteAria: 'Toggle favorite',
   },
   es: {
     placeholder: 'Buscar ciudad...',
@@ -99,6 +107,9 @@ const STRINGS = {
     today: 'Hoy',
     footer: 'Datos de Open-Meteo · sin registro, sin clave de API',
     locale: 'es-ES',
+    favoritesTitle: 'Favoritos',
+    recentTitle: 'Recientes',
+    favoriteAria: 'Marcar como favorito',
   },
 };
 
@@ -271,10 +282,60 @@ function addRecent(name, country, lat, lon) {
 }
 
 function renderRecent() {
+  recentSection.style.display = recentCities.length ? 'block' : 'none';
   recentRow.innerHTML = recentCities.map(c =>
-    `<div class="recent-chip" data-lat="${c.lat}" data-lon="${c.lon}" data-name="${escapeHtml(c.name)}" data-country="${escapeHtml(c.country || '')}">${escapeHtml(c.name)}</div>`
+    `<div class="chip" data-lat="${c.lat}" data-lon="${c.lon}" data-name="${escapeHtml(c.name)}" data-country="${escapeHtml(c.country || '')}">${escapeHtml(c.name)}</div>`
   ).join('');
-  recentRow.querySelectorAll('.recent-chip').forEach(chip => {
+  recentRow.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const { lat, lon, name, country } = chip.dataset;
+      loadWeather(parseFloat(lat), parseFloat(lon), name, country);
+    });
+  });
+}
+
+// ---------- Favorite cities (persisted in localStorage) ----------
+function loadFavorites() {
+  try {
+    const raw = localStorage.getItem(FAVORITES_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    console.warn('Could not read favorite cities from localStorage', e);
+    return [];
+  }
+}
+
+function saveFavorites() {
+  try {
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favoriteCities));
+  } catch (e) {
+    console.warn('Could not save favorite cities to localStorage', e);
+  }
+}
+
+function isFavorite(lat, lon) {
+  return favoriteCities.some(c => c.lat === lat && c.lon === lon);
+}
+
+function toggleFavorite(name, country, lat, lon) {
+  if (isFavorite(lat, lon)) {
+    favoriteCities = favoriteCities.filter(c => c.lat !== lat || c.lon !== lon);
+  } else {
+    favoriteCities.unshift({ name, country, lat, lon });
+  }
+  saveFavorites();
+  renderFavorites();
+  const favBtn = mainPanel.querySelector('.fav-btn');
+  if (favBtn) favBtn.classList.toggle('active', isFavorite(lat, lon));
+}
+
+function renderFavorites() {
+  favoritesSection.style.display = favoriteCities.length ? 'block' : 'none';
+  favoritesRow.innerHTML = favoriteCities.map(c =>
+    `<div class="chip" data-lat="${c.lat}" data-lon="${c.lon}" data-name="${escapeHtml(c.name)}" data-country="${escapeHtml(c.country || '')}">${escapeHtml(c.name)}</div>`
+  ).join('');
+  favoritesRow.querySelectorAll('.chip').forEach(chip => {
     chip.addEventListener('click', () => {
       const { lat, lon, name, country } = chip.dataset;
       loadWeather(parseFloat(lat), parseFloat(lon), name, country);
@@ -296,6 +357,8 @@ function applyStaticText() {
   cityInput.placeholder = t('placeholder');
   document.querySelector('#hourlyPanel .section-title').textContent = t('hoursTitle');
   document.querySelector('#dailyPanel .section-title').textContent = t('daysTitle');
+  document.getElementById('favoritesTitle').textContent = t('favoritesTitle');
+  document.getElementById('recentTitle').textContent = t('recentTitle');
   document.getElementById('footerText').textContent = t('footer');
   if (!lastData) {
     mainPanel.innerHTML = `<div class="status-line">${t('startMessage')}</div>`;
@@ -354,7 +417,7 @@ async function loadWeather(lat, lon, name, country) {
   }
 }
 
-function renderAll({ data, airQuality, name, country }) {
+function renderAll({ data, airQuality, name, country, lat, lon }) {
   const cur = data.current;
   const daily = data.daily;
   const hourly = data.hourly;
@@ -373,7 +436,13 @@ function renderAll({ data, airQuality, name, country }) {
 
   mainPanel.innerHTML = `
     <div class="primary">
-      <div class="place">${escapeHtml(name)}<span class="country">${escapeHtml(country || '')}</span></div>
+      <div class="place">
+        <span class="place-name-row">
+          <span>${escapeHtml(name)}</span>
+          <button class="fav-btn${isFavorite(lat, lon) ? ' active' : ''}" aria-label="${t('favoriteAria')}">★</button>
+        </span>
+        <span class="country">${escapeHtml(country || '')}</span>
+      </div>
       <div class="temp-block">
         <div class="temp">${fmtTemp(cur.temperature_2m)}</div>
         <div class="desc">${desc}</div>
@@ -428,6 +497,7 @@ function renderAll({ data, airQuality, name, country }) {
       </div>
     </div>
   `;
+  mainPanel.querySelector('.fav-btn').addEventListener('click', () => toggleFavorite(name, country, lat, lon));
 
   // Hourly: next 24h starting from current hour
   const startIdx = currentHourIdx;
@@ -485,6 +555,7 @@ function renderAll({ data, airQuality, name, country }) {
 
 // ---------- Init ----------
 applyStaticText();
+renderFavorites();
 renderRecent();
 loadWeather(40.4168, -3.7038, 'Madrid', 'Spain');
 setInterval(() => { if (lastData) updateClock(lastData.data.timezone); }, 30000);
