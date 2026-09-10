@@ -75,7 +75,7 @@ const STRINGS = {
     sunset: 'Sunset',
     now: 'Now',
     today: 'Today',
-    footer: 'Data from Open-Meteo · no sign-up, no API key',
+    footer: 'Data from Open-Meteo & OpenStreetMap · no sign-up, no API key',
     locale: 'en-US',
     favoritesTitle: 'Favorites',
     favoriteAria: 'Toggle favorite',
@@ -104,7 +104,7 @@ const STRINGS = {
     sunset: 'Atardecer',
     now: 'Ahora',
     today: 'Hoy',
-    footer: 'Datos de Open-Meteo · sin registro, sin clave de API',
+    footer: 'Datos de Open-Meteo y OpenStreetMap · sin registro, sin clave de API',
     locale: 'es-ES',
     favoritesTitle: 'Favoritos',
     favoriteAria: 'Marcar como favorito',
@@ -215,6 +215,25 @@ if (!('geolocation' in navigator)) {
   geoBtn.style.display = 'none';
 }
 
+// Best-effort reverse geocoding via Nominatim (OpenStreetMap) so "use my location"
+// can show a real place name. No API key, but usage requires attribution (see
+// the footer) and is only ever triggered by this one explicit user action.
+async function reverseGeocode(lat, lon) {
+  try {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=10&accept-language=${lang}`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data || data.error) return null;
+    const name = data.name || data.address?.city || data.address?.town || data.address?.village;
+    if (!name) return null;
+    return { name, country: data.address?.country || '' };
+  } catch (e) {
+    console.warn('Reverse geocoding unavailable', e);
+    return null;
+  }
+}
+
 geoBtn.addEventListener('click', () => {
   geoBtn.disabled = true;
   mainPanel.innerHTML = `<div class="status-line">${t('locating')}</div>`;
@@ -222,9 +241,11 @@ geoBtn.addEventListener('click', () => {
   dailyPanel.style.display = 'none';
 
   navigator.geolocation.getCurrentPosition(
-    (pos) => {
+    async (pos) => {
+      const { latitude, longitude } = pos.coords;
+      const place = await reverseGeocode(latitude, longitude);
       geoBtn.disabled = false;
-      loadWeather(pos.coords.latitude, pos.coords.longitude, t('myLocation'), '');
+      loadWeather(latitude, longitude, place ? place.name : t('myLocation'), place ? place.country : '');
     },
     (err) => {
       geoBtn.disabled = false;

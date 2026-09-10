@@ -1,6 +1,6 @@
 # climoscope
 
-A minimalist weather app in plain HTML/CSS/JS — no frameworks, no build tools, no API key. Uses the [Open-Meteo API](https://open-meteo.com/) for geocoding and forecasts.
+A minimalist weather app in plain HTML/CSS/JS — no frameworks, no build tools, no API key. Uses the [Open-Meteo API](https://open-meteo.com/) for geocoding and forecasts, and [OpenStreetMap Nominatim](https://nominatim.org/) to name your current location.
 
 🔗 **[climoscope-drab.vercel.app](https://climoscope-drab.vercel.app/)**
 
@@ -8,7 +8,7 @@ A minimalist weather app in plain HTML/CSS/JS — no frameworks, no build tools,
 
 ## Features
 
-- City search with autocomplete, or use your current location (browser geolocation)
+- City search with autocomplete, or use your current location (browser geolocation, reverse-geocoded to a place name via Nominatim)
 - Favorite cities (star a city, persisted in `localStorage`)
 - Current weather: temperature, feels-like, humidity, wind + gusts (with SVG compass), pressure, UV index, and air quality (European AQI)
 - Sunrise and sunset
