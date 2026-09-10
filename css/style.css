@@ -246,6 +246,15 @@ input#cityInput::placeholder { color: var(--text-dim); }
   border-top: 1px solid var(--panel-line);
 }
 
+.sun-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding-top: 18px;
+  margin-top: 18px;
+  border-top: 1px solid var(--panel-line);
+}
+
 .metric {
   text-align: center;
 }
@@ -302,6 +311,13 @@ input#cityInput::placeholder { color: var(--text-dim); }
 .hour-col .h-icon {
   font-size: 1.1rem;
   margin-bottom: 8px;
+}
+
+.hour-col .h-precip {
+  min-height: 13px;
+  font-size: 0.62rem;
+  color: var(--cool);
+  margin-bottom: 6px;
 }
 
 .hour-col .h-bar {

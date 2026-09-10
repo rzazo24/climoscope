@@ -68,6 +68,8 @@ const STRINGS = {
     wind: 'Wind',
     uvIndex: 'UV index',
     airQuality: 'Air quality',
+    sunrise: 'Sunrise',
+    sunset: 'Sunset',
     now: 'Now',
     today: 'Today',
     footer: 'Data from Open-Meteo · no sign-up, no API key',
@@ -87,6 +89,8 @@ const STRINGS = {
     wind: 'Viento',
     uvIndex: 'Índice UV',
     airQuality: 'Calidad del aire',
+    sunrise: 'Amanecer',
+    sunset: 'Atardecer',
     now: 'Ahora',
     today: 'Hoy',
     footer: 'Datos de Open-Meteo · sin registro, sin clave de API',
@@ -105,6 +109,13 @@ function cToF(c) { return (c * 9/5) + 32; }
 function fmtTemp(c) {
   const v = unit === 'C' ? c : cToF(c);
   return Math.round(v) + '°';
+}
+
+// isoString has no timezone offset — it's already shifted to the location's
+// local time by the API's timezone=auto, so it must be read back "as-is"
+// (no explicit timeZone here), same convention as the hourly/daily labels below.
+function fmtTime(isoString) {
+  return new Date(isoString).toLocaleTimeString(t('locale'), { hour: '2-digit', minute: '2-digit' });
 }
 
 function escapeHtml(str) {
@@ -304,7 +315,7 @@ async function loadWeather(lat, lon, name, country) {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
       `&current=temperature_2m,weathercode,is_day,relative_humidity_2m,wind_speed_10m,wind_direction_10m,apparent_temperature` +
       `&hourly=temperature_2m,weathercode,precipitation_probability,uv_index` +
-      `&daily=temperature_2m_max,temperature_2m_min,weathercode` +
+      `&daily=temperature_2m_max,temperature_2m_min,weathercode,sunrise,sunset` +
       `&timezone=auto&forecast_days=7`;
     const airQualityUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}` +
       `&current=european_aqi&timezone=auto`;
@@ -394,6 +405,16 @@ function renderAll({ data, airQuality, name, country }) {
         <div class="lbl">${t('airQuality')}</div>
       </div>
     </div>
+    <div class="sun-row">
+      <div class="metric">
+        <div class="val">${fmtTime(daily.sunrise[0])}</div>
+        <div class="lbl">${t('sunrise')}</div>
+      </div>
+      <div class="metric">
+        <div class="val">${fmtTime(daily.sunset[0])}</div>
+        <div class="lbl">${t('sunset')}</div>
+      </div>
+    </div>
   `;
 
   // Hourly: next 24h starting from current hour
@@ -401,6 +422,7 @@ function renderAll({ data, airQuality, name, country }) {
   const hoursSlice = hourly.time.slice(startIdx, startIdx + 24);
   const temps = hourly.temperature_2m.slice(startIdx, startIdx + 24);
   const codes = hourly.weathercode.slice(startIdx, startIdx + 24);
+  const precipProbs = hourly.precipitation_probability.slice(startIdx, startIdx + 24);
 
   const maxT = Math.max(...temps);
   const minT = Math.min(...temps);
@@ -415,6 +437,7 @@ function renderAll({ data, airQuality, name, country }) {
       <div class="hour-col">
         <div class="h-time">${timeLabel}</div>
         <div class="h-icon">${hIcon}</div>
+        <div class="h-precip">${precipProbs[i] > 0 ? precipProbs[i] + '%' : ''}</div>
         <div class="h-bar"><div class="fill" style="height:${Math.max(pct,8)}%"></div></div>
         <div class="h-temp">${fmtTemp(temps[i])}</div>
       </div>
