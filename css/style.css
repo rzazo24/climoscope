@@ -428,4 +428,7 @@ footer .credit { margin-top: 6px; }
   .primary .temp { font-size: 2.8rem; }
   .search-row { gap: 6px; }
   .toggle-btn { padding: 0 10px; }
+  .day-row { grid-template-columns: 62px 1fr 26px auto; gap: 8px; font-size: 0.8rem; }
+  .d-range { gap: 6px; }
+  .bar-track { width: 50px; }
 }
