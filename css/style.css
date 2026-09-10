@@ -99,6 +99,7 @@ body {
 
 input#cityInput {
   flex: 1;
+  min-width: 0;
   background: var(--panel);
   border: 1px solid var(--panel-line);
   border-radius: 10px;
@@ -422,4 +423,6 @@ footer .credit { margin-top: 6px; }
 @media (max-width: 480px) {
   .metrics { grid-template-columns: repeat(2, 1fr); row-gap: 16px; }
   .primary .temp { font-size: 2.8rem; }
+  .search-row { gap: 6px; }
+  .toggle-btn { padding: 0 10px; }
 }
