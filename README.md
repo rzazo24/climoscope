@@ -40,7 +40,23 @@ js/app.js         logic: geocoding, weather fetch, render, state
 sw.js             service worker (caches the app shell)
 manifest.json     PWA manifest
 icons/            PWA icons
+test/             automated tests (see Testing below)
 ```
+
+## Testing
+
+The app itself still has no dependencies, but the test suite runs on Node's
+built-in test runner (Node 18+):
+
+```bash
+npm test
+```
+
+Since `js/app.js` is a plain script with no exports (by design — no build
+step, no modules), tests work by giving it a fake `document`/`window`/
+`localStorage`/`fetch` (see `test/dom-stub.js`) and asserting on what it
+renders, the same way a real browser tab would host it. No network calls are
+made — `test/fixtures.js` has canned Open-Meteo/Nominatim-shaped responses.
 
 ## Deployment
 
