@@ -16,9 +16,10 @@ const starsLayer = document.getElementById('starsLayer');
 const FAVORITES_KEY = 'climoscope:favorites';
 const LAST_CITY_KEY = 'climoscope:lastCity';
 const UNIT_KEY = 'climoscope:unit';
+const LANG_KEY = 'climoscope:lang';
 
 let unit = loadUnit(); // C or F, persisted across reloads
-let lang = 'en'; // 'en' or 'es' — always starts in English, not persisted across reloads
+let lang = loadLang(); // 'en' or 'es', persisted across reloads
 let lastData = null; // cache of last fetched raw data for unit re-render
 let favoriteCities = loadFavorites();
 let searchDebounce = null;
@@ -390,6 +391,25 @@ function saveUnit() {
   }
 }
 
+// ---------- Language preference (persisted in localStorage) ----------
+function loadLang() {
+  try {
+    const raw = localStorage.getItem(LANG_KEY);
+    return raw === 'es' ? 'es' : 'en';
+  } catch (e) {
+    console.warn('Could not read language preference from localStorage', e);
+    return 'en';
+  }
+}
+
+function saveLang() {
+  try {
+    localStorage.setItem(LANG_KEY, lang);
+  } catch (e) {
+    console.warn('Could not save language preference to localStorage', e);
+  }
+}
+
 // ---------- Unit toggle ----------
 unitToggle.addEventListener('click', () => {
   unit = unit === 'C' ? 'F' : 'C';
@@ -416,6 +436,7 @@ function applyStaticText() {
 
 langToggle.addEventListener('click', () => {
   lang = lang === 'en' ? 'es' : 'en';
+  saveLang();
   applyStaticText();
   if (lastData) renderAll(lastData);
 });
