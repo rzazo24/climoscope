@@ -702,11 +702,48 @@ if (sharedCity) {
 setInterval(() => { if (lastData) updateClock(lastData.data.timezone); }, 30000);
 
 // ---------- PWA update banner ----------
-// sw.js calls skipWaiting()/clients.claim() on its own, so a new version takes
-// control of the page automatically — but the already-loaded HTML/CSS/JS stay
-// as they were until a reload. controllerchange fires exactly when that
-// takeover happens; we only treat it as "an update landed" (not the page's
-// first-ever activation) if this tab already had a controller before.
+function showUpdateBanner() {
+  if (updateBanner.style.display === 'flex') return;
+  updateBannerText.textContent = t('updateAvailable');
+  updateBannerBtn.textContent = t('reloadBtn');
+  updateBanner.style.display = 'flex';
+}
+
+updateBannerBtn.addEventListener('click', () => {
+  window.location.reload();
+});
+
+// The service worker is network-first, so the app shell already refreshes
+// itself on the network on every load — a new sw.js version is NOT what
+// signals "there's an update", since sw.js itself rarely changes. What the
+// user actually needs to know is that js/app.js changed on the server (true
+// for virtually every real update) while this tab has been sitting open with
+// the OLD code still running in memory. Detect that directly by comparing
+// its ETag against what was live when the page loaded, instead of relying on
+// service-worker versioning.
+let appJsEtag = null;
+
+async function checkForAppUpdate() {
+  try {
+    const res = await fetch('js/app.js', { cache: 'no-store' });
+    const etag = res.headers.get('etag') || res.headers.get('last-modified');
+    if (!etag) return;
+    if (appJsEtag === null) {
+      appJsEtag = etag;
+    } else if (etag !== appJsEtag) {
+      showUpdateBanner();
+    }
+  } catch (e) {
+    // offline or blocked — silently skip this check, try again next time
+  }
+}
+
+checkForAppUpdate();
+setInterval(checkForAppUpdate, 5 * 60 * 1000);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') checkForAppUpdate();
+});
+
 if ('serviceWorker' in navigator) {
   const hadController = !!navigator.serviceWorker.controller;
 
@@ -714,14 +751,8 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   });
 
+  // Kept as a secondary signal: fires if sw.js itself is ever updated.
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (!hadController) return;
-    updateBannerText.textContent = t('updateAvailable');
-    updateBannerBtn.textContent = t('reloadBtn');
-    updateBanner.style.display = 'flex';
-  });
-
-  updateBannerBtn.addEventListener('click', () => {
-    window.location.reload();
+    if (hadController) showUpdateBanner();
   });
 }
