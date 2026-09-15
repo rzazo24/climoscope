@@ -12,6 +12,9 @@ const unitToggle = document.getElementById('unitToggle');
 const langToggle = document.getElementById('langToggle');
 const clockNow = document.getElementById('clockNow');
 const starsLayer = document.getElementById('starsLayer');
+const updateBanner = document.getElementById('updateBanner');
+const updateBannerText = document.getElementById('updateBannerText');
+const updateBannerBtn = document.getElementById('updateBannerBtn');
 
 const FAVORITES_KEY = 'climoscope:favorites';
 const LAST_CITY_KEY = 'climoscope:lastCity';
@@ -86,6 +89,8 @@ const STRINGS = {
     locating: 'Locating...',
     myLocation: 'My location',
     geoError: 'Could not get your location. Check permissions and try again.',
+    updateAvailable: 'New version available',
+    reloadBtn: 'Reload',
   },
   es: {
     placeholder: 'Buscar ciudad...',
@@ -115,6 +120,8 @@ const STRINGS = {
     locating: 'Localizando...',
     myLocation: 'Mi ubicación',
     geoError: 'No se pudo obtener tu ubicación. Revisa los permisos e inténtalo de nuevo.',
+    updateAvailable: 'Hay una versión nueva disponible',
+    reloadBtn: 'Recargar',
   },
 };
 
@@ -635,8 +642,27 @@ if (lastCity) {
 }
 setInterval(() => { if (lastData) updateClock(lastData.data.timezone); }, 30000);
 
+// ---------- PWA update banner ----------
+// sw.js calls skipWaiting()/clients.claim() on its own, so a new version takes
+// control of the page automatically — but the already-loaded HTML/CSS/JS stay
+// as they were until a reload. controllerchange fires exactly when that
+// takeover happens; we only treat it as "an update landed" (not the page's
+// first-ever activation) if this tab already had a controller before.
 if ('serviceWorker' in navigator) {
+  const hadController = !!navigator.serviceWorker.controller;
+
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController) return;
+    updateBannerText.textContent = t('updateAvailable');
+    updateBannerBtn.textContent = t('reloadBtn');
+    updateBanner.style.display = 'flex';
+  });
+
+  updateBannerBtn.addEventListener('click', () => {
+    window.location.reload();
   });
 }

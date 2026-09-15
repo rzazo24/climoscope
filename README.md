@@ -18,7 +18,7 @@ A minimalist weather app in plain HTML/CSS/JS — no frameworks, no build tools,
 - °C/°F toggle, persisted in `localStorage`
 - EN/ES language toggle, persisted in `localStorage` (defaults to English on first visit)
 - Dynamic background based on weather and time of day
-- Installable as a PWA (works offline for the app shell; weather data always comes from the network)
+- Installable as a PWA (works offline for the app shell; weather data always comes from the network), with an update banner when a new version is available
 
 ## Running it locally
 
