@@ -15,8 +15,9 @@ const starsLayer = document.getElementById('starsLayer');
 
 const FAVORITES_KEY = 'climoscope:favorites';
 const LAST_CITY_KEY = 'climoscope:lastCity';
+const UNIT_KEY = 'climoscope:unit';
 
-let unit = 'C'; // C or F
+let unit = loadUnit(); // C or F, persisted across reloads
 let lang = 'en'; // 'en' or 'es' — always starts in English, not persisted across reloads
 let lastData = null; // cache of last fetched raw data for unit re-render
 let favoriteCities = loadFavorites();
@@ -370,10 +371,30 @@ function saveLastCity(name, country, lat, lon) {
   }
 }
 
+// ---------- Unit preference (persisted in localStorage) ----------
+function loadUnit() {
+  try {
+    const raw = localStorage.getItem(UNIT_KEY);
+    return raw === 'F' ? 'F' : 'C';
+  } catch (e) {
+    console.warn('Could not read unit preference from localStorage', e);
+    return 'C';
+  }
+}
+
+function saveUnit() {
+  try {
+    localStorage.setItem(UNIT_KEY, unit);
+  } catch (e) {
+    console.warn('Could not save unit preference to localStorage', e);
+  }
+}
+
 // ---------- Unit toggle ----------
 unitToggle.addEventListener('click', () => {
   unit = unit === 'C' ? 'F' : 'C';
   unitToggle.textContent = '°' + unit;
+  saveUnit();
   if (lastData) renderAll(lastData);
 });
 
@@ -381,6 +402,7 @@ unitToggle.addEventListener('click', () => {
 function applyStaticText() {
   document.documentElement.lang = lang;
   langToggle.textContent = lang.toUpperCase();
+  unitToggle.textContent = '°' + unit;
   cityInput.placeholder = t('placeholder');
   geoBtn.setAttribute('aria-label', t('geoAria'));
   document.querySelector('#hourlyPanel .section-title').textContent = t('hoursTitle');

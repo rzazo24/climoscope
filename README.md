@@ -15,7 +15,7 @@ A minimalist weather app in plain HTML/CSS/JS — no frameworks, no build tools,
 - Sunrise and sunset
 - Hourly forecast (next 24h), with rain probability
 - 7-day forecast, with daily max rain probability
-- °C/°F toggle
+- °C/°F toggle, persisted in `localStorage`
 - EN/ES language toggle (app loads in English by default)
 - Dynamic background based on weather and time of day
 - Installable as a PWA (works offline for the app shell; weather data always comes from the network)
