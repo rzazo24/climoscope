@@ -14,6 +14,7 @@ const clockNow = document.getElementById('clockNow');
 const starsLayer = document.getElementById('starsLayer');
 
 const FAVORITES_KEY = 'climoscope:favorites';
+const LAST_CITY_KEY = 'climoscope:lastCity';
 
 let unit = 'C'; // C or F
 let lang = 'en'; // 'en' or 'es' — always starts in English, not persisted across reloads
@@ -350,6 +351,25 @@ function renderFavorites() {
   });
 }
 
+// ---------- Last viewed city (persisted in localStorage, used as the start-up city) ----------
+function loadLastCity() {
+  try {
+    const raw = localStorage.getItem(LAST_CITY_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    console.warn('Could not read last city from localStorage', e);
+    return null;
+  }
+}
+
+function saveLastCity(name, country, lat, lon) {
+  try {
+    localStorage.setItem(LAST_CITY_KEY, JSON.stringify({ name, country, lat, lon }));
+  } catch (e) {
+    console.warn('Could not save last city to localStorage', e);
+  }
+}
+
 // ---------- Unit toggle ----------
 unitToggle.addEventListener('click', () => {
   unit = unit === 'C' ? 'F' : 'C';
@@ -415,6 +435,7 @@ async function loadWeather(lat, lon, name, country) {
     }
 
     lastData = { data, airQuality, name, country, lat, lon };
+    saveLastCity(name, country, lat, lon);
     renderAll(lastData);
   } catch (e) {
     if (requestId !== weatherRequestId) return;
@@ -563,7 +584,12 @@ function renderAll({ data, airQuality, name, country, lat, lon }) {
 // ---------- Init ----------
 applyStaticText();
 renderFavorites();
-loadWeather(40.4168, -3.7038, 'Madrid', 'Spain');
+const lastCity = loadLastCity();
+if (lastCity) {
+  loadWeather(lastCity.lat, lastCity.lon, lastCity.name, lastCity.country);
+} else {
+  loadWeather(40.4168, -3.7038, 'Madrid', 'Spain');
+}
 setInterval(() => { if (lastData) updateClock(lastData.data.timezone); }, 30000);
 
 if ('serviceWorker' in navigator) {
