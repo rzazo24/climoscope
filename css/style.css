@@ -314,6 +314,22 @@ input#cityInput::placeholder { color: var(--text-dim); }
   gap: 4px;
   overflow-x: auto;
   padding-bottom: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--panel-line) transparent;
+}
+
+.hourly-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+.hourly-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.hourly-scroll::-webkit-scrollbar-thumb {
+  background: var(--panel-line);
+  border-radius: 3px;
+}
+.hourly-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--amber);
 }
 
 .hour-col {
