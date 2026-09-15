@@ -91,6 +91,7 @@ const STRINGS = {
     geoError: 'Could not get your location. Check permissions and try again.',
     updateAvailable: 'New version available',
     reloadBtn: 'Reload',
+    shareAria: 'Share this city',
   },
   es: {
     placeholder: 'Buscar ciudad...',
@@ -122,6 +123,7 @@ const STRINGS = {
     geoError: 'No se pudo obtener tu ubicación. Revisa los permisos e inténtalo de nuevo.',
     updateAvailable: 'Hay una versión nueva disponible',
     reloadBtn: 'Recargar',
+    shareAria: 'Compartir esta ciudad',
   },
 };
 
@@ -379,6 +381,49 @@ function saveLastCity(name, country, lat, lon) {
   }
 }
 
+// ---------- Share city via URL ----------
+function cityUrlParams(name, country, lat, lon) {
+  const params = new URLSearchParams();
+  params.set('lat', lat);
+  params.set('lon', lon);
+  if (name) params.set('name', name);
+  if (country) params.set('country', country);
+  return params;
+}
+
+function updateUrlForCity(name, country, lat, lon) {
+  try {
+    const newUrl = `${window.location.pathname}?${cityUrlParams(name, country, lat, lon).toString()}`;
+    window.history.replaceState(null, '', newUrl);
+  } catch (e) {
+    console.warn('Could not update the URL', e);
+  }
+}
+
+function getSharedCityFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const lat = parseFloat(params.get('lat'));
+  const lon = parseFloat(params.get('lon'));
+  if (Number.isNaN(lat) || Number.isNaN(lon)) return null;
+  return { lat, lon, name: params.get('name') || '', country: params.get('country') || '' };
+}
+
+function shareCity(btn, name, country, lat, lon) {
+  const shareUrl = `${window.location.origin}${window.location.pathname}?${cityUrlParams(name, country, lat, lon).toString()}`;
+
+  if (navigator.share) {
+    navigator.share({ title: 'climoscope', text: name, url: shareUrl }).catch(() => {});
+    return;
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      const original = btn.textContent;
+      btn.textContent = '✓';
+      setTimeout(() => { btn.textContent = original; }, 1200);
+    }).catch(() => {});
+  }
+}
+
 // ---------- Unit preference (persisted in localStorage) ----------
 function loadUnit() {
   try {
@@ -486,6 +531,7 @@ async function loadWeather(lat, lon, name, country) {
 
     lastData = { data, airQuality, name, country, lat, lon };
     saveLastCity(name, country, lat, lon);
+    updateUrlForCity(name, country, lat, lon);
     renderAll(lastData);
   } catch (e) {
     if (requestId !== weatherRequestId) return;
@@ -517,6 +563,7 @@ function renderAll({ data, airQuality, name, country, lat, lon }) {
         <span class="place-name-row">
           <span>${escapeHtml(name)}</span>
           <button class="fav-btn${isFavorite(lat, lon) ? ' active' : ''}" aria-label="${t('favoriteAria')}">★</button>
+          <button class="share-btn" aria-label="${t('shareAria')}">🔗</button>
         </span>
         <span class="country">${escapeHtml(country || '')}</span>
       </div>
@@ -575,6 +622,7 @@ function renderAll({ data, airQuality, name, country, lat, lon }) {
     </div>
   `;
   mainPanel.querySelector('.fav-btn').addEventListener('click', () => toggleFavorite(name, country, lat, lon));
+  mainPanel.querySelector('.share-btn').addEventListener('click', (e) => shareCity(e.currentTarget, name, country, lat, lon));
 
   // Hourly: next 24h starting from current hour
   const startIdx = currentHourIdx;
@@ -634,11 +682,22 @@ function renderAll({ data, airQuality, name, country, lat, lon }) {
 // ---------- Init ----------
 applyStaticText();
 renderFavorites();
-const lastCity = loadLastCity();
-if (lastCity) {
-  loadWeather(lastCity.lat, lastCity.lon, lastCity.name, lastCity.country);
+const sharedCity = getSharedCityFromUrl();
+if (sharedCity) {
+  if (sharedCity.name) {
+    loadWeather(sharedCity.lat, sharedCity.lon, sharedCity.name, sharedCity.country);
+  } else {
+    reverseGeocode(sharedCity.lat, sharedCity.lon).then((place) => {
+      loadWeather(sharedCity.lat, sharedCity.lon, place ? place.name : t('myLocation'), place ? place.country : '');
+    });
+  }
 } else {
-  loadWeather(40.4168, -3.7038, 'Madrid', 'Spain');
+  const lastCity = loadLastCity();
+  if (lastCity) {
+    loadWeather(lastCity.lat, lastCity.lon, lastCity.name, lastCity.country);
+  } else {
+    loadWeather(40.4168, -3.7038, 'Madrid', 'Spain');
+  }
 }
 setInterval(() => { if (lastData) updateClock(lastData.data.timezone); }, 30000);
 

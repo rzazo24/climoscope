@@ -235,6 +235,17 @@ input#cityInput::placeholder { color: var(--text-dim); }
 .fav-btn:hover { color: var(--amber); }
 .fav-btn.active { color: var(--amber); }
 
+.share-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.95rem;
+  line-height: 1;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.share-btn:hover { color: var(--amber); }
+
 .primary .place .country {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.75rem;
