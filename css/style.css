@@ -447,7 +447,7 @@ footer {
   text-align: center;
   color: var(--text-dim);
   font-size: 0.7rem;
-  margin-top: 20px;
+  margin-top: 40px;
   letter-spacing: 0.04em;
 }
 footer a { color: var(--text-dim); }
