@@ -216,12 +216,14 @@ function setSky(code, isDay) {
   starsLayer.classList.toggle('visible', stars);
 }
 
-// Random background photo (picsum.photos — no API key/signup needed), picked
-// once per page load, not tied to weather (the dynamic sky gradient from
-// setSky above still tints on top of it). Restricted to a hand-picked set of
-// landscape/nature photo IDs (checked individually for no people in frame),
-// since Picsum's random endpoint has no theme/keyword filter and pulls from
-// its whole mixed catalog (portraits, objects, interiors, etc.) otherwise.
+// Random background photo (picsum.photos — no API key/signup needed). Not
+// tied to weather (the dynamic sky gradient from setSky above still tints on
+// top of it) — reshuffled on page load and whenever the tab/PWA regains
+// visibility (see the visibilitychange listener near the bottom), so it
+// changes both on a full reload and on returning from the background.
+// Restricted to a hand-picked set of landscape/nature photo IDs (checked
+// individually for no people in frame), since Picsum's random endpoint has
+// no theme/keyword filter and pulls from its whole mixed catalog otherwise.
 const PHOTO_IDS = [
   10, 28, 29, 69, 81, 89, 110, 120, 130, 230,
   260, 270, 280, 300, 330, 350, 440, 450, 480, 510,
@@ -779,7 +781,10 @@ async function checkForAppUpdate() {
 checkForAppUpdate();
 setInterval(checkForAppUpdate, 5 * 60 * 1000);
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') checkForAppUpdate();
+  if (document.visibilityState === 'visible') {
+    checkForAppUpdate();
+    setRandomBackgroundPhoto();
+  }
 });
 
 if ('serviceWorker' in navigator) {
