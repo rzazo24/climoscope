@@ -259,7 +259,7 @@ input#cityInput::placeholder { color: var(--text-dim); }
 /* A 5-point star's visual mass sits lower than its bounding box's
    geometric center (one point up top, two wide points down low), so it
    reads as lower than the share icon next to it unless nudged up. */
-.fav-btn svg { transform: translateY(-2px); }
+.fav-btn svg { transform: translateY(-1px); }
 .fav-btn:hover { color: var(--amber); }
 .fav-btn.active { color: var(--amber); }
 
