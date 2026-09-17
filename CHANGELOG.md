@@ -4,6 +4,18 @@ All notable changes to this project are documented in this file, generated
 from the git history. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [SemVer](https://semver.org/).
 
+## [1.1.0] - 2026-09-18
+
+### Added
+- Air quality metric color-coded by European AQI category (Good/Fair/Moderate/Poor/Very Poor/Extremely Poor), with the exact category shown as a tooltip
+- Random landscape background photo, from a curated no-people photo set via Picsum Photos (no API key) — reshuffled on page load and whenever the PWA regains visibility from the background
+
+### Changed
+- Background photo starts loading earlier (DNS preconnect, reordered init) so it appears sooner
+
+### Fixed
+- Background photo (and the night starfield) leaving a gap at the bottom on mobile, caused by `100vh` not tracking the browser's dynamic address bar — switched to `100dvh`
+
 ## [1.0.0] - 2026-09-15
 
 First feature-complete, tested release.
