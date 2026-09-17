@@ -142,6 +142,9 @@ input#cityInput::placeholder { color: var(--text-dim); }
   font-size: 0.85rem;
   padding: 0 16px;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .toggle-btn:hover { color: var(--amber); border-color: var(--amber); }
 .toggle-btn:disabled { opacity: 0.5; cursor: default; }
@@ -247,8 +250,8 @@ input#cityInput::placeholder { color: var(--text-dim); }
   background: none;
   border: none;
   padding: 0;
-  font-size: 1.1rem;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
   color: var(--text-dim);
   cursor: pointer;
 }
@@ -259,8 +262,8 @@ input#cityInput::placeholder { color: var(--text-dim); }
   background: none;
   border: none;
   padding: 0;
-  font-size: 0.95rem;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
   color: var(--text-dim);
   cursor: pointer;
 }
