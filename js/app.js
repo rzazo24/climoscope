@@ -12,6 +12,7 @@ const unitToggle = document.getElementById('unitToggle');
 const langToggle = document.getElementById('langToggle');
 const clockNow = document.getElementById('clockNow');
 const starsLayer = document.getElementById('starsLayer');
+const photoLayer = document.getElementById('photoLayer');
 const updateBanner = document.getElementById('updateBanner');
 const updateBannerText = document.getElementById('updateBannerText');
 const updateBannerBtn = document.getElementById('updateBannerBtn');
@@ -213,6 +214,24 @@ function setSky(code, isDay) {
   root.style.setProperty('--sky-b', b);
   root.style.setProperty('--sky-glow', glow);
   starsLayer.classList.toggle('visible', stars);
+}
+
+// Random background photo (picsum.photos — no API key/signup needed), picked
+// once per page load, not tied to weather (the dynamic sky gradient from
+// setSky above still tints on top of it). Restricted to a hand-picked set of
+// landscape/nature photo IDs (checked individually for no people in frame),
+// since Picsum's random endpoint has no theme/keyword filter and pulls from
+// its whole mixed catalog (portraits, objects, interiors, etc.) otherwise.
+const PHOTO_IDS = [
+  10, 28, 29, 69, 81, 89, 110, 120, 130, 230,
+  260, 270, 280, 300, 330, 350, 440, 450, 480, 510,
+];
+
+function setRandomBackgroundPhoto() {
+  const id = PHOTO_IDS[Math.floor(Math.random() * PHOTO_IDS.length)];
+  const url = `https://picsum.photos/id/${id}/1600/900`;
+  photoLayer.style.backgroundImage = `url("${url}")`;
+  requestAnimationFrame(() => photoLayer.classList.add('visible'));
 }
 
 // ---------- Geocoding autocomplete ----------
@@ -700,6 +719,7 @@ function renderAll({ data, airQuality, name, country, lat, lon }) {
 // ---------- Init ----------
 applyStaticText();
 renderFavorites();
+setRandomBackgroundPhoto();
 const sharedCity = getSharedCityFromUrl();
 if (sharedCity) {
   if (sharedCity.name) {

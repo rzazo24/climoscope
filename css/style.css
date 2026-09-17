@@ -35,6 +35,18 @@ body {
   transition: background 1.2s ease;
 }
 
+.photo-layer {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+.photo-layer.visible { opacity: 0.35; }
+
 .stars-layer {
   position: fixed;
   inset: 0;

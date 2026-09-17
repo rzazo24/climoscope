@@ -86,6 +86,9 @@ function loadApp({ fetchImpl, localStorageSeed = {}, urlSearch = '' } = {}) {
   // relevant to these tests and both would otherwise keep the process alive.
   global.setInterval = () => 0;
 
+  // requestAnimationFrame exists in every real browser but not in Node.
+  global.requestAnimationFrame = (cb) => setTimeout(cb, 0);
+
   delete require.cache[require.resolve(APP_JS_PATH)];
   require(APP_JS_PATH);
 
