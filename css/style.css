@@ -252,6 +252,7 @@ input#cityInput::placeholder { color: var(--text-dim); }
   padding: 0;
   display: inline-flex;
   align-items: center;
+  height: 16px;
   color: var(--text-dim);
   cursor: pointer;
 }
@@ -264,6 +265,7 @@ input#cityInput::placeholder { color: var(--text-dim); }
   padding: 0;
   display: inline-flex;
   align-items: center;
+  height: 16px;
   color: var(--text-dim);
   cursor: pointer;
 }
