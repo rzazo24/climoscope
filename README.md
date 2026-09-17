@@ -12,7 +12,7 @@ A minimalist weather app in plain HTML/CSS/JS — no frameworks, no build tools,
 - Favorite cities (star a city, persisted in `localStorage`)
 - Remembers the last city you viewed and reopens on it (falls back to Madrid on first visit)
 - Share a city via URL (`?lat=...&lon=...&name=...&country=...`) — the address bar always reflects the current city, and a share button next to the city name copies/shares the link
-- Current weather: temperature, feels-like, humidity, wind + gusts (with SVG compass), pressure, UV index, and air quality (European AQI)
+- Current weather: temperature, feels-like, humidity, wind + gusts (with SVG compass), pressure, UV index, and air quality (European AQI, color-coded by category)
 - Sunrise and sunset
 - Hourly forecast (next 24h), with rain probability
 - 7-day forecast, with daily max rain probability

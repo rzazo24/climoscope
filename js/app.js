@@ -134,6 +134,23 @@ function wx(code) {
   return [w.icon, w[lang]];
 }
 
+// European AQI bands per Open-Meteo's docs (0-20 Good ... 100+ Extremely Poor).
+// Colors are coarser than the 6 bands (Good/Fair share green, Very Poor/Extremely
+// Poor share red) since that many distinct hues isn't legible at this size.
+const AQI_LEVELS = [
+  { max: 20, en: 'Good', es: 'Buena', color: '#6fbf8b' },
+  { max: 40, en: 'Fair', es: 'Aceptable', color: '#6fbf8b' },
+  { max: 60, en: 'Moderate', es: 'Moderada', color: 'var(--amber)' },
+  { max: 80, en: 'Poor', es: 'Mala', color: '#e07a3f' },
+  { max: 100, en: 'Very Poor', es: 'Muy mala', color: '#d64545' },
+  { max: Infinity, en: 'Extremely Poor', es: 'Extremadamente mala', color: '#d64545' },
+];
+
+function aqiInfo(aqi) {
+  const level = AQI_LEVELS.find((l) => aqi <= l.max) || AQI_LEVELS[AQI_LEVELS.length - 1];
+  return { label: level[lang], color: level.color };
+}
+
 function cToF(c) { return (c * 9/5) + 32; }
 function fmtTemp(c) {
   const v = unit === 'C' ? c : cToF(c);
@@ -556,6 +573,7 @@ function renderAll({ data, airQuality, name, country, lat, lon }) {
   const now = new Date();
   const currentHourIdx = Math.max(0, hourly.time.findIndex(time => new Date(time) >= now));
   const uvIndex = hourly.uv_index ? hourly.uv_index[currentHourIdx] : null;
+  const aqi = airQuality != null ? aqiInfo(airQuality) : null;
 
   mainPanel.innerHTML = `
     <div class="primary">
@@ -602,7 +620,7 @@ function renderAll({ data, airQuality, name, country, lat, lon }) {
         <div class="lbl">${t('uvIndex')}</div>
       </div>
       <div class="metric">
-        <div class="val">${airQuality != null ? Math.round(airQuality) : '—'}</div>
+        <div class="val"${aqi ? ` style="color:${aqi.color}" title="${aqi.label}"` : ''}>${airQuality != null ? Math.round(airQuality) : '—'}</div>
         <div class="lbl">${t('airQuality')}</div>
       </div>
       <div class="metric">
