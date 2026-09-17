@@ -717,9 +717,9 @@ function renderAll({ data, airQuality, name, country, lat, lon }) {
 }
 
 // ---------- Init ----------
+setRandomBackgroundPhoto(); // fire this first so the photo request starts as early as possible
 applyStaticText();
 renderFavorites();
-setRandomBackgroundPhoto();
 const sharedCity = getSharedCityFromUrl();
 if (sharedCity) {
   if (sharedCity.name) {
