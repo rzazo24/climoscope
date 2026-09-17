@@ -37,7 +37,11 @@ body {
 
 .photo-layer {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
   z-index: -1;
   pointer-events: none;
   background-size: cover;
@@ -49,7 +53,11 @@ body {
 
 .stars-layer {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
   pointer-events: none;
   opacity: 0;
   transition: opacity 1.5s ease;
