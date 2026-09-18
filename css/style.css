@@ -92,6 +92,12 @@ body {
   margin-bottom: 24px;
 }
 
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .masthead .brand {
   font-family: 'Fraunces', serif;
   font-size: 1.4rem;
@@ -100,6 +106,14 @@ body {
 }
 
 .masthead .brand span { color: var(--amber); }
+
+.robot-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--panel);
+  border: 1px solid var(--panel-line);
+}
 
 .masthead .clock {
   font-size: 0.75rem;

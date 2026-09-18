@@ -19,6 +19,7 @@ A minimalist weather app in plain HTML/CSS/JS — no frameworks, no build tools,
 - °C/°F toggle, persisted in `localStorage`
 - EN/ES language toggle, persisted in `localStorage` (defaults to English on first visit)
 - Dynamic background based on weather and time of day, layered over a random landscape photo (picked on each load from a curated list, via [Picsum Photos](https://picsum.photos/) — no API key)
+- A random robot avatar next to the logo, just for fun (via [RoboHash](https://robohash.org/) — no API key)
 - Installable as a PWA (works offline for the app shell; weather data always comes from the network), with an update banner when a new version is available
 
 ## Running it locally

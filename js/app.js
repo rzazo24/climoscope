@@ -14,6 +14,7 @@ const langToggle = document.getElementById('langToggle');
 const clockNow = document.getElementById('clockNow');
 const starsLayer = document.getElementById('starsLayer');
 const photoLayer = document.getElementById('photoLayer');
+const robotAvatar = document.getElementById('robotAvatar');
 const updateBanner = document.getElementById('updateBanner');
 const updateBannerText = document.getElementById('updateBannerText');
 const updateBannerBtn = document.getElementById('updateBannerBtn');
@@ -295,6 +296,14 @@ function setRandomBackgroundPhoto() {
   const url = `https://picsum.photos/id/${id}/1600/900`;
   photoLayer.style.backgroundImage = `url("${url}")`;
   requestAnimationFrame(() => photoLayer.classList.add('visible'));
+}
+
+// A random robot avatar next to the brand (robohash.org — no API key/signup).
+// set1 is robohash's "robots" set specifically (it also has monsters/heads/
+// kittens); any random seed string gives a different, but stable, robot.
+function setRandomRobot() {
+  const seed = Math.random().toString(36).slice(2);
+  robotAvatar.src = `https://robohash.org/${encodeURIComponent(seed)}.png?set=set1&size=64x64`;
 }
 
 // ---------- Geocoding autocomplete ----------
@@ -951,6 +960,7 @@ function renderAll({ data, airQuality, name, country, lat, lon }) {
 
 // ---------- Init ----------
 setRandomBackgroundPhoto(); // fire this first so the photo request starts as early as possible
+setRandomRobot();
 applyStaticText();
 renderFavorites();
 const sharedCity = getSharedCityFromUrl();
