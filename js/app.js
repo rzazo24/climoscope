@@ -130,6 +130,7 @@ const STRINGS = {
     precipShowers: 'Showers',
     precipSnow: 'Snow',
     precipHours: 'Hours with precipitation',
+    grainsUnit: 'grains/m³',
   },
   es: {
     placeholder: 'Buscar ciudad...',
@@ -181,6 +182,7 @@ const STRINGS = {
     precipShowers: 'Chubascos',
     precipSnow: 'Nieve',
     precipHours: 'Horas con precipitación',
+    grainsUnit: 'granos/m³',
   },
 };
 
@@ -546,7 +548,7 @@ function fmtPollutant(v) {
 }
 
 function fmtGrains(v) {
-  return v != null ? `${Math.round(v)} grains/m³` : '—';
+  return v != null ? `${Math.round(v)} ${t('grainsUnit')}` : '—';
 }
 
 function openAqiModal() {
