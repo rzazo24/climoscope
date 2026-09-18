@@ -192,12 +192,15 @@ function escapeHtml(str) {
 }
 
 function updateClock(tz) {
+  const now = new Date();
   try {
-    const now = new Date();
-    const opts = { hour: '2-digit', minute: '2-digit', timeZone: tz };
-    clockNow.textContent = now.toLocaleTimeString(t('locale'), opts);
+    const timeStr = now.toLocaleTimeString(t('locale'), { hour: '2-digit', minute: '2-digit', timeZone: tz });
+    const dateStr = now.toLocaleDateString(t('locale'), { day: 'numeric', month: 'short', timeZone: tz });
+    clockNow.textContent = `${timeStr} · ${dateStr}`;
   } catch (e) {
-    clockNow.textContent = new Date().toLocaleTimeString(t('locale'), { hour: '2-digit', minute: '2-digit' });
+    const timeStr = now.toLocaleTimeString(t('locale'), { hour: '2-digit', minute: '2-digit' });
+    const dateStr = now.toLocaleDateString(t('locale'), { day: 'numeric', month: 'short' });
+    clockNow.textContent = `${timeStr} · ${dateStr}`;
   }
 }
 
