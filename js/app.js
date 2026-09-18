@@ -17,6 +17,10 @@ const photoLayer = document.getElementById('photoLayer');
 const updateBanner = document.getElementById('updateBanner');
 const updateBannerText = document.getElementById('updateBannerText');
 const updateBannerBtn = document.getElementById('updateBannerBtn');
+const aqiModal = document.getElementById('aqiModal');
+const aqiModalTitle = document.getElementById('aqiModalTitle');
+const aqiModalBody = document.getElementById('aqiModalBody');
+const aqiModalClose = document.getElementById('aqiModalClose');
 
 const FAVORITES_KEY = 'climoscope:favorites';
 const LAST_CITY_KEY = 'climoscope:lastCity';
@@ -102,6 +106,9 @@ const STRINGS = {
     updateAvailable: 'New version available',
     reloadBtn: 'Reload',
     shareAria: 'Share this city',
+    closeAria: 'Close',
+    europeanAqi: 'European AQI',
+    usAqi: 'US AQI',
   },
   es: {
     placeholder: 'Buscar ciudad...',
@@ -135,6 +142,9 @@ const STRINGS = {
     updateAvailable: 'Hay una versión nueva disponible',
     reloadBtn: 'Recargar',
     shareAria: 'Compartir esta ciudad',
+    closeAria: 'Cerrar',
+    europeanAqi: 'AQI europeo',
+    usAqi: 'AQI de EE.UU.',
   },
 };
 
@@ -424,9 +434,62 @@ function renderFavorites() {
   });
 }
 
+// Shared full-screen blur backdrop: stays visible as long as *any* overlay
+// that uses it (favorites menu, AQI detail modal) is open.
+function refreshBackdrop() {
+  const anyOpen = favoritesMenu.classList.contains('open') || aqiModal.style.display !== 'none';
+  menuBackdrop.classList.toggle('visible', anyOpen);
+}
+
 function setFavoritesMenuOpen(open) {
   favoritesMenu.classList.toggle('open', open);
-  menuBackdrop.classList.toggle('visible', open);
+  refreshBackdrop();
+}
+
+function setAqiModalOpen(open) {
+  aqiModal.style.display = open ? 'flex' : 'none';
+  refreshBackdrop();
+}
+
+menuBackdrop.addEventListener('click', () => {
+  setFavoritesMenuOpen(false);
+  setAqiModalOpen(false);
+});
+
+aqiModalClose.addEventListener('click', () => setAqiModalOpen(false));
+
+// .aqi-modal is a full-screen wrapper (needed so its content box can be
+// centered), which sits above #menuBackdrop — a click in its empty area
+// never reaches the backdrop's own click-to-close handler, so it needs one
+// of its own. e.target === aqiModal means the click landed on the wrapper
+// itself, not on (or inside) .aqi-modal-content.
+aqiModal.addEventListener('click', (e) => {
+  if (e.target === aqiModal) setAqiModalOpen(false);
+});
+
+function fmtPollutant(v) {
+  return v != null ? `${Math.round(v)} µg/m³` : '—';
+}
+
+function openAqiModal() {
+  if (!lastData || !lastData.airQuality) return;
+  const aq = lastData.airQuality;
+  const info = aqiInfo(aq.european_aqi);
+
+  aqiModalTitle.textContent = t('airQuality');
+  aqiModalClose.setAttribute('aria-label', t('closeAria'));
+  aqiModalBody.innerHTML = `
+    <div class="aqi-category" style="color:${info.color}">${info.label}</div>
+    <div class="aqi-row"><span class="aqi-label">${t('europeanAqi')}</span><span class="aqi-value">${Math.round(aq.european_aqi)}</span></div>
+    <div class="aqi-row"><span class="aqi-label">${t('usAqi')}</span><span class="aqi-value">${aq.us_aqi != null ? Math.round(aq.us_aqi) : '—'}</span></div>
+    <div class="aqi-row"><span class="aqi-label">PM2.5</span><span class="aqi-value">${fmtPollutant(aq.pm2_5)}</span></div>
+    <div class="aqi-row"><span class="aqi-label">PM10</span><span class="aqi-value">${fmtPollutant(aq.pm10)}</span></div>
+    <div class="aqi-row"><span class="aqi-label">NO&#8322;</span><span class="aqi-value">${fmtPollutant(aq.nitrogen_dioxide)}</span></div>
+    <div class="aqi-row"><span class="aqi-label">O&#8323;</span><span class="aqi-value">${fmtPollutant(aq.ozone)}</span></div>
+    <div class="aqi-row"><span class="aqi-label">SO&#8322;</span><span class="aqi-value">${fmtPollutant(aq.sulphur_dioxide)}</span></div>
+    <div class="aqi-row"><span class="aqi-label">CO</span><span class="aqi-value">${fmtPollutant(aq.carbon_monoxide)}</span></div>
+  `;
+  setAqiModalOpen(true);
 }
 
 favoritesBtn.addEventListener('click', () => {
@@ -580,7 +643,7 @@ async function loadWeather(lat, lon, name, country) {
       `&daily=temperature_2m_max,temperature_2m_min,weathercode,sunrise,sunset,precipitation_probability_max` +
       `&timezone=auto&forecast_days=7`;
     const airQualityUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}` +
-      `&current=european_aqi&timezone=auto`;
+      `&current=european_aqi,us_aqi,pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone&timezone=auto`;
 
     // Air quality is a bonus metric: fetched alongside the forecast but never allowed
     // to fail the whole request — if it errors out we just show '—' for that metric.
@@ -592,11 +655,13 @@ async function loadWeather(lat, lon, name, country) {
       throw new Error(data.reason || `Forecast API responded ${res.status}`);
     }
 
+    // Holds the whole `current` object (not just european_aqi) so the detail
+    // modal (opened later, on click) has the pollutant breakdown available.
     let airQuality = null;
     try {
       if (airRes && airRes.ok) {
         const airData = await airRes.json();
-        if (!airData.error && airData.current) airQuality = airData.current.european_aqi;
+        if (!airData.error && airData.current) airQuality = airData.current;
       }
     } catch (e) {
       console.warn('Air quality unavailable', e);
@@ -629,7 +694,7 @@ function renderAll({ data, airQuality, name, country, lat, lon }) {
   const now = new Date();
   const currentHourIdx = Math.max(0, hourly.time.findIndex(time => new Date(time) >= now));
   const uvIndex = hourly.uv_index ? hourly.uv_index[currentHourIdx] : null;
-  const aqi = airQuality != null ? aqiInfo(airQuality) : null;
+  const aqi = airQuality != null ? aqiInfo(airQuality.european_aqi) : null;
 
   mainPanel.innerHTML = `
     <div class="primary">
@@ -676,7 +741,7 @@ function renderAll({ data, airQuality, name, country, lat, lon }) {
         <div class="lbl">${t('uvIndex')}</div>
       </div>
       <div class="metric">
-        <div class="val"${aqi ? ` style="color:${aqi.color}" title="${aqi.label}"` : ''}>${airQuality != null ? Math.round(airQuality) : '—'}</div>
+        <div class="val aqi-val"${aqi ? ` style="color:${aqi.color}" title="${aqi.label}"` : ''}>${airQuality != null ? Math.round(airQuality.european_aqi) : '—'}</div>
         <div class="lbl">${t('airQuality')}</div>
       </div>
       <div class="metric">
@@ -697,6 +762,9 @@ function renderAll({ data, airQuality, name, country, lat, lon }) {
   `;
   mainPanel.querySelector('.fav-btn').addEventListener('click', () => toggleFavorite(name, country, lat, lon));
   mainPanel.querySelector('.share-btn').addEventListener('click', (e) => shareCity(e.currentTarget, name, country, lat, lon));
+  if (aqi) {
+    mainPanel.querySelector('.aqi-val').addEventListener('click', openAqiModal);
+  }
 
   // Hourly: next 24h starting from current hour
   const startIdx = currentHourIdx;
