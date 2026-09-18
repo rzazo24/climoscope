@@ -303,6 +303,9 @@ function setRandomBackgroundPhoto() {
 // kittens); any random seed string gives a different, but stable, robot.
 function setRandomRobot() {
   const seed = Math.random().toString(36).slice(2);
+  robotAvatar.style.visibility = 'hidden';
+  robotAvatar.onload = () => { robotAvatar.style.visibility = 'visible'; };
+  robotAvatar.onerror = () => { robotAvatar.style.visibility = 'hidden'; };
   robotAvatar.src = `https://robohash.org/${encodeURIComponent(seed)}.png?set=set1&size=64x64`;
 }
 
