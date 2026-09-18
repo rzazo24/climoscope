@@ -41,6 +41,8 @@ let weatherRequestId = 0; // guards against out-of-order weather responses
 // that look different per OS/font.
 const STAR_SVG = '<svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>';
 const SHARE_SVG = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>';
+const CHEVRON_UP_SVG = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>';
+const CHEVRON_DOWN_SVG = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
 
 const WEATHER = {
   0: { icon: '☀️', en: 'Clear sky', es: 'Despejado' },
@@ -98,6 +100,8 @@ const STRINGS = {
     locale: 'en-US',
     favoritesAria: 'Favorites',
     noFavorites: 'No favorites yet',
+    moveUp: 'Move up',
+    moveDown: 'Move down',
     favoriteAria: 'Toggle favorite',
     geoAria: 'Use my location',
     locating: 'Locating...',
@@ -141,6 +145,8 @@ const STRINGS = {
     locale: 'es-ES',
     favoritesAria: 'Favoritos',
     noFavorites: 'Aún no tienes favoritos',
+    moveUp: 'Subir',
+    moveDown: 'Bajar',
     favoriteAria: 'Marcar como favorito',
     geoAria: 'Usar mi ubicación',
     locating: 'Localizando...',
@@ -428,6 +434,15 @@ function toggleFavorite(name, country, lat, lon) {
   if (favBtn) favBtn.classList.toggle('active', isFavorite(lat, lon));
 }
 
+function moveFavorite(index, direction) {
+  const newIndex = index + direction;
+  if (newIndex < 0 || newIndex >= favoriteCities.length) return;
+  const [item] = favoriteCities.splice(index, 1);
+  favoriteCities.splice(newIndex, 0, item);
+  saveFavorites();
+  renderFavorites();
+}
+
 function renderFavorites() {
   favoritesBtn.classList.toggle('active', favoriteCities.length > 0);
 
@@ -436,10 +451,16 @@ function renderFavorites() {
     return;
   }
 
-  favoritesMenu.innerHTML = favoriteCities.map(c => `
+  favoritesMenu.innerHTML = favoriteCities.map((c, i) => `
     <div class="suggestion-item" data-lat="${c.lat}" data-lon="${c.lon}" data-name="${escapeHtml(c.name)}" data-country="${escapeHtml(c.country || '')}">
-      <span>${escapeHtml(c.name)}</span>
-      <span class="sub">${escapeHtml(c.country || '')}</span>
+      <span class="fav-item-info">
+        <span>${escapeHtml(c.name)}</span>
+        <span class="sub">${escapeHtml(c.country || '')}</span>
+      </span>
+      <span class="fav-item-actions">
+        <button class="reorder-btn" data-dir="-1" aria-label="${t('moveUp')}"${i === 0 ? ' disabled' : ''}>${CHEVRON_UP_SVG}</button>
+        <button class="reorder-btn" data-dir="1" aria-label="${t('moveDown')}"${i === favoriteCities.length - 1 ? ' disabled' : ''}>${CHEVRON_DOWN_SVG}</button>
+      </span>
     </div>
   `).join('');
   favoritesMenu.querySelectorAll('.suggestion-item').forEach(item => {
@@ -447,6 +468,14 @@ function renderFavorites() {
       const { lat, lon, name, country } = item.dataset;
       setFavoritesMenuOpen(false);
       loadWeather(parseFloat(lat), parseFloat(lon), name, country);
+    });
+  });
+  favoritesMenu.querySelectorAll('.reorder-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const item = btn.closest('.suggestion-item');
+      const index = Array.from(favoritesMenu.children).indexOf(item);
+      moveFavorite(index, parseInt(btn.dataset.dir, 10));
     });
   });
 }
