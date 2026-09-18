@@ -4,6 +4,15 @@ All notable changes to this project are documented in this file, generated
 from the git history. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [SemVer](https://semver.org/).
 
+## [1.3.0] - 2026-09-18
+
+### Added
+- Precipitation card (today's total) with a detail modal breaking it down into rain, showers, snow, and hours with precipitation
+
+### Changed
+- Air quality modal's CSS generalized into shared, reusable "detail modal" styles (used by both it and the new precipitation modal)
+- Updated README screenshot to reflect the current app (background photo, redesigned metrics grid, favorites/geolocation controls)
+
 ## [1.2.1] - 2026-09-18
 
 ### Added
