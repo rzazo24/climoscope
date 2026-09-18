@@ -148,6 +148,7 @@ input#cityInput::placeholder { color: var(--text-dim); }
 }
 .toggle-btn:hover { color: var(--amber); border-color: var(--amber); }
 .toggle-btn:disabled { opacity: 0.5; cursor: default; }
+.toggle-btn.active { color: var(--amber); border-color: var(--amber); }
 
 .suggestions {
   position: absolute;
@@ -178,35 +179,6 @@ input#cityInput::placeholder { color: var(--text-dim); }
 
 .suggestion-item.empty { cursor: default; color: var(--text-dim); }
 .suggestion-item.empty:hover { background: none; }
-
-.chip-section {
-  margin-bottom: 20px;
-}
-
-.chip-section .section-title {
-  margin-bottom: 8px;
-}
-
-.chip-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.chip {
-  font-size: 0.72rem;
-  color: var(--text-dim);
-  border: 1px solid var(--panel-line);
-  padding: 5px 10px;
-  border-radius: 20px;
-  cursor: pointer;
-  min-width: 0;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.chip:hover { color: var(--amber); border-color: var(--amber); }
 
 /* ---------- Main panel ---------- */
 .panel {

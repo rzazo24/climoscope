@@ -1,8 +1,8 @@
 const cityInput = document.getElementById('cityInput');
 const geoBtn = document.getElementById('geoBtn');
 const suggestionsEl = document.getElementById('suggestions');
-const favoritesSection = document.getElementById('favoritesSection');
-const favoritesRow = document.getElementById('favoritesRow');
+const favoritesBtn = document.getElementById('favoritesBtn');
+const favoritesMenu = document.getElementById('favoritesMenu');
 const mainPanel = document.getElementById('mainPanel');
 const hourlyPanel = document.getElementById('hourlyPanel');
 const hourlyScroll = document.getElementById('hourlyScroll');
@@ -91,7 +91,8 @@ const STRINGS = {
     today: 'Today',
     footer: 'Data from Open-Meteo & OpenStreetMap · no sign-up, no API key',
     locale: 'en-US',
-    favoritesTitle: 'Favorites',
+    favoritesAria: 'Favorites',
+    noFavorites: 'No favorites yet',
     favoriteAria: 'Toggle favorite',
     geoAria: 'Use my location',
     locating: 'Locating...',
@@ -123,7 +124,8 @@ const STRINGS = {
     today: 'Hoy',
     footer: 'Datos de Open-Meteo y OpenStreetMap · sin registro, sin clave de API',
     locale: 'es-ES',
-    favoritesTitle: 'Favoritos',
+    favoritesAria: 'Favoritos',
+    noFavorites: 'Aún no tienes favoritos',
     favoriteAria: 'Marcar como favorito',
     geoAria: 'Usar mi ubicación',
     locating: 'Localizando...',
@@ -245,6 +247,7 @@ function setRandomBackgroundPhoto() {
 
 // ---------- Geocoding autocomplete ----------
 cityInput.addEventListener('input', () => {
+  favoritesMenu.classList.remove('open');
   clearTimeout(searchDebounce);
   const q = cityInput.value.trim();
   if (q.length < 2) {
@@ -264,6 +267,9 @@ cityInput.addEventListener('keydown', (e) => {
 document.addEventListener('click', (e) => {
   if (!suggestionsEl.contains(e.target) && e.target !== cityInput) {
     suggestionsEl.classList.remove('open');
+  }
+  if (!favoritesMenu.contains(e.target) && !favoritesBtn.contains(e.target)) {
+    favoritesMenu.classList.remove('open');
   }
 });
 
@@ -395,17 +401,32 @@ function toggleFavorite(name, country, lat, lon) {
 }
 
 function renderFavorites() {
-  favoritesSection.style.display = favoriteCities.length ? 'block' : 'none';
-  favoritesRow.innerHTML = favoriteCities.map(c =>
-    `<div class="chip" data-lat="${c.lat}" data-lon="${c.lon}" data-name="${escapeHtml(c.name)}" data-country="${escapeHtml(c.country || '')}">${escapeHtml(c.name)}</div>`
-  ).join('');
-  favoritesRow.querySelectorAll('.chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      const { lat, lon, name, country } = chip.dataset;
+  favoritesBtn.classList.toggle('active', favoriteCities.length > 0);
+
+  if (favoriteCities.length === 0) {
+    favoritesMenu.innerHTML = `<div class="suggestion-item empty">${t('noFavorites')}</div>`;
+    return;
+  }
+
+  favoritesMenu.innerHTML = favoriteCities.map(c => `
+    <div class="suggestion-item" data-lat="${c.lat}" data-lon="${c.lon}" data-name="${escapeHtml(c.name)}" data-country="${escapeHtml(c.country || '')}">
+      <span>${escapeHtml(c.name)}</span>
+      <span class="sub">${escapeHtml(c.country || '')}</span>
+    </div>
+  `).join('');
+  favoritesMenu.querySelectorAll('.suggestion-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const { lat, lon, name, country } = item.dataset;
+      favoritesMenu.classList.remove('open');
       loadWeather(parseFloat(lat), parseFloat(lon), name, country);
     });
   });
 }
+
+favoritesBtn.addEventListener('click', () => {
+  suggestionsEl.classList.remove('open');
+  favoritesMenu.classList.toggle('open');
+});
 
 // ---------- Last viewed city (persisted in localStorage, used as the start-up city) ----------
 function loadLastCity() {
@@ -524,7 +545,7 @@ function applyStaticText() {
   geoBtn.setAttribute('aria-label', t('geoAria'));
   document.querySelector('#hourlyPanel .section-title').textContent = t('hoursTitle');
   document.querySelector('#dailyPanel .section-title').textContent = t('daysTitle');
-  document.getElementById('favoritesTitle').textContent = t('favoritesTitle');
+  favoritesBtn.setAttribute('aria-label', t('favoritesAria'));
   document.getElementById('footerText').textContent = t('footer');
   if (!lastData) {
     mainPanel.innerHTML = `<div class="status-line">${t('startMessage')}</div>`;
@@ -535,6 +556,7 @@ langToggle.addEventListener('click', () => {
   lang = lang === 'en' ? 'es' : 'en';
   saveLang();
   applyStaticText();
+  renderFavorites();
   if (lastData) renderAll(lastData);
 });
 
