@@ -4,6 +4,11 @@ All notable changes to this project are documented in this file, generated
 from the git history. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [SemVer](https://semver.org/).
 
+## [1.4.1] - 2026-09-18
+
+### Fixed
+- Robot avatar showing a broken-image "?" icon when RoboHash is slow or fails to respond — now stays hidden until it actually loads
+
 ## [1.4.0] - 2026-09-18
 
 ### Added
