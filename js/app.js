@@ -3,6 +3,7 @@ const geoBtn = document.getElementById('geoBtn');
 const suggestionsEl = document.getElementById('suggestions');
 const favoritesBtn = document.getElementById('favoritesBtn');
 const favoritesMenu = document.getElementById('favoritesMenu');
+const menuBackdrop = document.getElementById('menuBackdrop');
 const mainPanel = document.getElementById('mainPanel');
 const hourlyPanel = document.getElementById('hourlyPanel');
 const hourlyScroll = document.getElementById('hourlyScroll');
@@ -247,7 +248,7 @@ function setRandomBackgroundPhoto() {
 
 // ---------- Geocoding autocomplete ----------
 cityInput.addEventListener('input', () => {
-  favoritesMenu.classList.remove('open');
+  setFavoritesMenuOpen(false);
   clearTimeout(searchDebounce);
   const q = cityInput.value.trim();
   if (q.length < 2) {
@@ -269,7 +270,7 @@ document.addEventListener('click', (e) => {
     suggestionsEl.classList.remove('open');
   }
   if (!favoritesMenu.contains(e.target) && !favoritesBtn.contains(e.target)) {
-    favoritesMenu.classList.remove('open');
+    setFavoritesMenuOpen(false);
   }
 });
 
@@ -417,15 +418,20 @@ function renderFavorites() {
   favoritesMenu.querySelectorAll('.suggestion-item').forEach(item => {
     item.addEventListener('click', () => {
       const { lat, lon, name, country } = item.dataset;
-      favoritesMenu.classList.remove('open');
+      setFavoritesMenuOpen(false);
       loadWeather(parseFloat(lat), parseFloat(lon), name, country);
     });
   });
 }
 
+function setFavoritesMenuOpen(open) {
+  favoritesMenu.classList.toggle('open', open);
+  menuBackdrop.classList.toggle('visible', open);
+}
+
 favoritesBtn.addEventListener('click', () => {
   suggestionsEl.classList.remove('open');
-  favoritesMenu.classList.toggle('open');
+  setFavoritesMenuOpen(!favoritesMenu.classList.contains('open'));
 });
 
 // ---------- Last viewed city (persisted in localStorage, used as the start-up city) ----------

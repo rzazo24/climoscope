@@ -150,6 +150,22 @@ input#cityInput::placeholder { color: var(--text-dim); }
 .toggle-btn:disabled { opacity: 0.5; cursor: default; }
 .toggle-btn.active { color: var(--amber); border-color: var(--amber); }
 
+.menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9;
+  background: rgba(6, 10, 18, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.menu-backdrop.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .suggestions {
   position: absolute;
   top: calc(100% + 6px);
