@@ -109,6 +109,13 @@ const STRINGS = {
     closeAria: 'Close',
     europeanAqi: 'European AQI',
     usAqi: 'US AQI',
+    pollenTitle: 'Pollen',
+    alderPollen: 'Alder',
+    birchPollen: 'Birch',
+    grassPollen: 'Grass',
+    mugwortPollen: 'Mugwort',
+    olivePollen: 'Olive',
+    ragweedPollen: 'Ragweed',
   },
   es: {
     placeholder: 'Buscar ciudad...',
@@ -145,6 +152,13 @@ const STRINGS = {
     closeAria: 'Cerrar',
     europeanAqi: 'AQI europeo',
     usAqi: 'AQI de EE.UU.',
+    pollenTitle: 'Polen',
+    alderPollen: 'Aliso',
+    birchPollen: 'Abedul',
+    grassPollen: 'Gramíneas',
+    mugwortPollen: 'Artemisa',
+    olivePollen: 'Olivo',
+    ragweedPollen: 'Ambrosía',
   },
 };
 
@@ -474,10 +488,32 @@ function fmtPollutant(v) {
   return v != null ? `${Math.round(v)} µg/m³` : '—';
 }
 
+function fmtGrains(v) {
+  return v != null ? `${Math.round(v)} grains/m³` : '—';
+}
+
 function openAqiModal() {
   if (!lastData || !lastData.airQuality) return;
   const aq = lastData.airQuality;
   const info = aqiInfo(aq.european_aqi);
+
+  // Pollen is only reported by Open-Meteo for the European CAMS domain — every
+  // field comes back null outside it, so only show the section when at least
+  // one of them is real data (off-season pollen is 0, not null).
+  const pollenFields = [
+    ['alderPollen', aq.alder_pollen],
+    ['birchPollen', aq.birch_pollen],
+    ['grassPollen', aq.grass_pollen],
+    ['mugwortPollen', aq.mugwort_pollen],
+    ['olivePollen', aq.olive_pollen],
+    ['ragweedPollen', aq.ragweed_pollen],
+  ];
+  const pollenHtml = pollenFields.some(([, v]) => v != null)
+    ? `
+      <div class="aqi-section-title">${t('pollenTitle')}</div>
+      ${pollenFields.map(([key, v]) => `<div class="aqi-row"><span class="aqi-label">${t(key)}</span><span class="aqi-value">${fmtGrains(v)}</span></div>`).join('')}
+    `
+    : '';
 
   aqiModalTitle.textContent = t('airQuality');
   aqiModalClose.setAttribute('aria-label', t('closeAria'));
@@ -491,6 +527,7 @@ function openAqiModal() {
     <div class="aqi-row"><span class="aqi-label">O&#8323;</span><span class="aqi-value">${fmtPollutant(aq.ozone)}</span></div>
     <div class="aqi-row"><span class="aqi-label">SO&#8322;</span><span class="aqi-value">${fmtPollutant(aq.sulphur_dioxide)}</span></div>
     <div class="aqi-row"><span class="aqi-label">CO</span><span class="aqi-value">${fmtPollutant(aq.carbon_monoxide)}</span></div>
+    ${pollenHtml}
   `;
   setAqiModalOpen(true);
 }
@@ -646,7 +683,8 @@ async function loadWeather(lat, lon, name, country) {
       `&daily=temperature_2m_max,temperature_2m_min,weathercode,sunrise,sunset,precipitation_probability_max` +
       `&timezone=auto&forecast_days=7`;
     const airQualityUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}` +
-      `&current=european_aqi,us_aqi,pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone&timezone=auto`;
+      `&current=european_aqi,us_aqi,pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone,` +
+      `alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen&timezone=auto`;
 
     // Air quality is a bonus metric: fetched alongside the forecast but never allowed
     // to fail the whole request — if it errors out we just show '—' for that metric.

@@ -235,6 +235,16 @@ input#cityInput::placeholder { color: var(--text-dim); }
   font-size: 0.85rem;
 }
 .aqi-row:last-child { border-bottom: none; }
+
+.aqi-section-title {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--panel-line);
+}
 .aqi-row .aqi-label { color: var(--text-dim); }
 .aqi-row .aqi-value { font-weight: 600; }
 
