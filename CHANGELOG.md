@@ -4,6 +4,15 @@ All notable changes to this project are documented in this file, generated
 from the git history. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [SemVer](https://semver.org/).
 
+## [1.2.1] - 2026-09-18
+
+### Added
+- Version number shown in the footer, linking to this changelog on GitHub
+
+### Changed
+- Smaller footer font size on mobile
+- Footer text simplified (dropped "no sign-up, no API key")
+
 ## [1.2.0] - 2026-09-18
 
 ### Added
