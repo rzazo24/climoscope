@@ -171,7 +171,9 @@ input#cityInput::placeholder { color: var(--text-dim); }
   pointer-events: auto;
 }
 
-.aqi-modal {
+/* Shared chrome for any "click a metric, see a detail panel" modal (air
+   quality, precipitation, ...) — only the body content differs per metric. */
+.detail-modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -185,7 +187,7 @@ input#cityInput::placeholder { color: var(--text-dim); }
   padding: 20px;
 }
 
-.aqi-modal-content {
+.detail-modal-content {
   background: var(--panel);
   border: 1px solid var(--panel-line);
   border-radius: 16px;
@@ -196,7 +198,7 @@ input#cityInput::placeholder { color: var(--text-dim); }
   overflow-y: auto;
 }
 
-.aqi-modal-header {
+.detail-modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -207,7 +209,7 @@ input#cityInput::placeholder { color: var(--text-dim); }
   color: var(--text-dim);
 }
 
-#aqiModalClose {
+.detail-modal-close {
   background: none;
   border: none;
   padding: 0;
@@ -216,7 +218,7 @@ input#cityInput::placeholder { color: var(--text-dim); }
   display: inline-flex;
   align-items: center;
 }
-#aqiModalClose:hover { color: var(--amber); }
+.detail-modal-close:hover { color: var(--amber); }
 
 .aqi-category {
   text-align: center;
@@ -226,7 +228,7 @@ input#cityInput::placeholder { color: var(--text-dim); }
   margin-bottom: 18px;
 }
 
-.aqi-row {
+.detail-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -234,9 +236,9 @@ input#cityInput::placeholder { color: var(--text-dim); }
   border-bottom: 1px solid var(--panel-line);
   font-size: 0.85rem;
 }
-.aqi-row:last-child { border-bottom: none; }
+.detail-row:last-child { border-bottom: none; }
 
-.aqi-section-title {
+.detail-section-title {
   font-size: 0.7rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -245,8 +247,8 @@ input#cityInput::placeholder { color: var(--text-dim); }
   padding-top: 12px;
   border-top: 1px solid var(--panel-line);
 }
-.aqi-row .aqi-label { color: var(--text-dim); }
-.aqi-row .aqi-value { font-weight: 600; }
+.detail-row .detail-label { color: var(--text-dim); }
+.detail-row .detail-value { font-weight: 600; }
 
 .suggestions {
   position: absolute;
@@ -408,7 +410,7 @@ input#cityInput::placeholder { color: var(--text-dim); }
 
 .metrics {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px 12px;
   padding-top: 22px;
   border-top: 1px solid var(--panel-line);
@@ -432,7 +434,7 @@ input#cityInput::placeholder { color: var(--text-dim); }
   font-weight: 600;
 }
 
-.aqi-val {
+.clickable-metric {
   cursor: pointer;
   text-decoration: underline;
   text-decoration-style: dotted;

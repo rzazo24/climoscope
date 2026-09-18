@@ -21,6 +21,10 @@ const aqiModal = document.getElementById('aqiModal');
 const aqiModalTitle = document.getElementById('aqiModalTitle');
 const aqiModalBody = document.getElementById('aqiModalBody');
 const aqiModalClose = document.getElementById('aqiModalClose');
+const precipModal = document.getElementById('precipModal');
+const precipModalTitle = document.getElementById('precipModalTitle');
+const precipModalBody = document.getElementById('precipModalBody');
+const precipModalClose = document.getElementById('precipModalClose');
 
 const FAVORITES_KEY = 'climoscope:favorites';
 const LAST_CITY_KEY = 'climoscope:lastCity';
@@ -120,6 +124,12 @@ const STRINGS = {
     mugwortPollen: 'Mugwort',
     olivePollen: 'Olive',
     ragweedPollen: 'Ragweed',
+    precipitation: 'Precipitation',
+    precipTotal: 'Total',
+    precipRain: 'Rain',
+    precipShowers: 'Showers',
+    precipSnow: 'Snow',
+    precipHours: 'Hours with precipitation',
   },
   es: {
     placeholder: 'Buscar ciudad...',
@@ -165,6 +175,12 @@ const STRINGS = {
     mugwortPollen: 'Artemisa',
     olivePollen: 'Olivo',
     ragweedPollen: 'Ambrosía',
+    precipitation: 'Precipitación',
+    precipTotal: 'Total',
+    precipRain: 'Lluvia',
+    precipShowers: 'Chubascos',
+    precipSnow: 'Nieve',
+    precipHours: 'Horas con precipitación',
   },
 };
 
@@ -483,7 +499,9 @@ function renderFavorites() {
 // Shared full-screen blur backdrop: stays visible as long as *any* overlay
 // that uses it (favorites menu, AQI detail modal) is open.
 function refreshBackdrop() {
-  const anyOpen = favoritesMenu.classList.contains('open') || aqiModal.style.display !== 'none';
+  const anyOpen = favoritesMenu.classList.contains('open')
+    || aqiModal.style.display !== 'none'
+    || precipModal.style.display !== 'none';
   menuBackdrop.classList.toggle('visible', anyOpen);
 }
 
@@ -497,20 +515,30 @@ function setAqiModalOpen(open) {
   refreshBackdrop();
 }
 
+function setPrecipModalOpen(open) {
+  precipModal.style.display = open ? 'flex' : 'none';
+  refreshBackdrop();
+}
+
 menuBackdrop.addEventListener('click', () => {
   setFavoritesMenuOpen(false);
   setAqiModalOpen(false);
+  setPrecipModalOpen(false);
 });
 
 aqiModalClose.addEventListener('click', () => setAqiModalOpen(false));
+precipModalClose.addEventListener('click', () => setPrecipModalOpen(false));
 
-// .aqi-modal is a full-screen wrapper (needed so its content box can be
+// .detail-modal is a full-screen wrapper (needed so its content box can be
 // centered), which sits above #menuBackdrop — a click in its empty area
-// never reaches the backdrop's own click-to-close handler, so it needs one
-// of its own. e.target === aqiModal means the click landed on the wrapper
-// itself, not on (or inside) .aqi-modal-content.
+// never reaches the backdrop's own click-to-close handler, so each one needs
+// its own. e.target === the modal itself means the click landed on the
+// wrapper, not on (or inside) .detail-modal-content.
 aqiModal.addEventListener('click', (e) => {
   if (e.target === aqiModal) setAqiModalOpen(false);
+});
+precipModal.addEventListener('click', (e) => {
+  if (e.target === precipModal) setPrecipModalOpen(false);
 });
 
 function fmtPollutant(v) {
@@ -539,8 +567,8 @@ function openAqiModal() {
   ];
   const pollenHtml = pollenFields.some(([, v]) => v != null)
     ? `
-      <div class="aqi-section-title">${t('pollenTitle')}</div>
-      ${pollenFields.map(([key, v]) => `<div class="aqi-row"><span class="aqi-label">${t(key)}</span><span class="aqi-value">${fmtGrains(v)}</span></div>`).join('')}
+      <div class="detail-section-title">${t('pollenTitle')}</div>
+      ${pollenFields.map(([key, v]) => `<div class="detail-row"><span class="detail-label">${t(key)}</span><span class="detail-value">${fmtGrains(v)}</span></div>`).join('')}
     `
     : '';
 
@@ -548,17 +576,39 @@ function openAqiModal() {
   aqiModalClose.setAttribute('aria-label', t('closeAria'));
   aqiModalBody.innerHTML = `
     <div class="aqi-category" style="color:${info.color}">${info.label}</div>
-    <div class="aqi-row"><span class="aqi-label">${t('europeanAqi')}</span><span class="aqi-value">${Math.round(aq.european_aqi)}</span></div>
-    <div class="aqi-row"><span class="aqi-label">${t('usAqi')}</span><span class="aqi-value">${aq.us_aqi != null ? Math.round(aq.us_aqi) : '—'}</span></div>
-    <div class="aqi-row"><span class="aqi-label">PM2.5</span><span class="aqi-value">${fmtPollutant(aq.pm2_5)}</span></div>
-    <div class="aqi-row"><span class="aqi-label">PM10</span><span class="aqi-value">${fmtPollutant(aq.pm10)}</span></div>
-    <div class="aqi-row"><span class="aqi-label">NO&#8322;</span><span class="aqi-value">${fmtPollutant(aq.nitrogen_dioxide)}</span></div>
-    <div class="aqi-row"><span class="aqi-label">O&#8323;</span><span class="aqi-value">${fmtPollutant(aq.ozone)}</span></div>
-    <div class="aqi-row"><span class="aqi-label">SO&#8322;</span><span class="aqi-value">${fmtPollutant(aq.sulphur_dioxide)}</span></div>
-    <div class="aqi-row"><span class="aqi-label">CO</span><span class="aqi-value">${fmtPollutant(aq.carbon_monoxide)}</span></div>
+    <div class="detail-row"><span class="detail-label">${t('europeanAqi')}</span><span class="detail-value">${Math.round(aq.european_aqi)}</span></div>
+    <div class="detail-row"><span class="detail-label">${t('usAqi')}</span><span class="detail-value">${aq.us_aqi != null ? Math.round(aq.us_aqi) : '—'}</span></div>
+    <div class="detail-row"><span class="detail-label">PM2.5</span><span class="detail-value">${fmtPollutant(aq.pm2_5)}</span></div>
+    <div class="detail-row"><span class="detail-label">PM10</span><span class="detail-value">${fmtPollutant(aq.pm10)}</span></div>
+    <div class="detail-row"><span class="detail-label">NO&#8322;</span><span class="detail-value">${fmtPollutant(aq.nitrogen_dioxide)}</span></div>
+    <div class="detail-row"><span class="detail-label">O&#8323;</span><span class="detail-value">${fmtPollutant(aq.ozone)}</span></div>
+    <div class="detail-row"><span class="detail-label">SO&#8322;</span><span class="detail-value">${fmtPollutant(aq.sulphur_dioxide)}</span></div>
+    <div class="detail-row"><span class="detail-label">CO</span><span class="detail-value">${fmtPollutant(aq.carbon_monoxide)}</span></div>
     ${pollenHtml}
   `;
   setAqiModalOpen(true);
+}
+
+function fmtMm(v) {
+  return v != null ? `${Math.round(v * 10) / 10} mm` : '—';
+}
+
+function openPrecipModal() {
+  if (!lastData) return;
+  const daily = lastData.data.daily;
+  const snow = daily.snowfall_sum[0];
+  const hours = daily.precipitation_hours[0];
+
+  precipModalTitle.textContent = t('precipitation');
+  precipModalClose.setAttribute('aria-label', t('closeAria'));
+  precipModalBody.innerHTML = `
+    <div class="detail-row"><span class="detail-label">${t('precipTotal')}</span><span class="detail-value">${fmtMm(daily.precipitation_sum[0])}</span></div>
+    <div class="detail-row"><span class="detail-label">${t('precipRain')}</span><span class="detail-value">${fmtMm(daily.rain_sum[0])}</span></div>
+    <div class="detail-row"><span class="detail-label">${t('precipShowers')}</span><span class="detail-value">${fmtMm(daily.showers_sum[0])}</span></div>
+    <div class="detail-row"><span class="detail-label">${t('precipSnow')}</span><span class="detail-value">${snow != null ? `${Math.round(snow * 10) / 10} cm` : '—'}</span></div>
+    <div class="detail-row"><span class="detail-label">${t('precipHours')}</span><span class="detail-value">${hours != null ? Math.round(hours) : '—'}</span></div>
+  `;
+  setPrecipModalOpen(true);
 }
 
 favoritesBtn.addEventListener('click', () => {
@@ -709,7 +759,8 @@ async function loadWeather(lat, lon, name, country) {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
       `&current=temperature_2m,weathercode,is_day,relative_humidity_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,pressure_msl,apparent_temperature` +
       `&hourly=temperature_2m,weathercode,precipitation_probability,uv_index` +
-      `&daily=temperature_2m_max,temperature_2m_min,weathercode,sunrise,sunset,precipitation_probability_max` +
+      `&daily=temperature_2m_max,temperature_2m_min,weathercode,sunrise,sunset,precipitation_probability_max,` +
+      `precipitation_sum,rain_sum,showers_sum,snowfall_sum,precipitation_hours` +
       `&timezone=auto&forecast_days=7`;
     const airQualityUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}` +
       `&current=european_aqi,us_aqi,pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone,` +
@@ -811,12 +862,16 @@ function renderAll({ data, airQuality, name, country, lat, lon }) {
         <div class="lbl">${t('uvIndex')}</div>
       </div>
       <div class="metric">
-        <div class="val aqi-val"${aqi ? ` style="color:${aqi.color}" title="${aqi.label}"` : ''}>${airQuality != null ? Math.round(airQuality.european_aqi) : '—'}</div>
+        <div class="val aqi-val clickable-metric"${aqi ? ` style="color:${aqi.color}" title="${aqi.label}"` : ''}>${airQuality != null ? Math.round(airQuality.european_aqi) : '—'}</div>
         <div class="lbl">${t('airQuality')}</div>
       </div>
       <div class="metric">
         <div class="val">${Math.round(cur.pressure_msl)} hPa</div>
         <div class="lbl">${t('pressure')}</div>
+      </div>
+      <div class="metric">
+        <div class="val precip-val clickable-metric">${fmtMm(daily.precipitation_sum[0])}</div>
+        <div class="lbl">${t('precipitation')}</div>
       </div>
     </div>
     <div class="sun-row">
@@ -835,6 +890,7 @@ function renderAll({ data, airQuality, name, country, lat, lon }) {
   if (aqi) {
     mainPanel.querySelector('.aqi-val').addEventListener('click', openAqiModal);
   }
+  mainPanel.querySelector('.precip-val').addEventListener('click', openPrecipModal);
 
   // Hourly: next 24h starting from current hour
   const startIdx = currentHourIdx;

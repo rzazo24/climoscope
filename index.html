@@ -66,15 +66,27 @@
   <button id="updateBannerBtn">Reload</button>
 </div>
 
-<div class="aqi-modal" id="aqiModal" style="display:none;">
-  <div class="aqi-modal-content">
-    <div class="aqi-modal-header">
+<div class="detail-modal" id="aqiModal" style="display:none;">
+  <div class="detail-modal-content">
+    <div class="detail-modal-header">
       <span id="aqiModalTitle">Air quality</span>
-      <button id="aqiModalClose" aria-label="Close">
+      <button class="detail-modal-close" id="aqiModalClose" aria-label="Close">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
       </button>
     </div>
     <div id="aqiModalBody"></div>
+  </div>
+</div>
+
+<div class="detail-modal" id="precipModal" style="display:none;">
+  <div class="detail-modal-content">
+    <div class="detail-modal-header">
+      <span id="precipModalTitle">Precipitation</span>
+      <button class="detail-modal-close" id="precipModalClose" aria-label="Close">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+      </button>
+    </div>
+    <div id="precipModalBody"></div>
   </div>
 </div>
 
