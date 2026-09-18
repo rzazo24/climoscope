@@ -4,6 +4,20 @@ All notable changes to this project are documented in this file, generated
 from the git history. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [SemVer](https://semver.org/).
 
+## [1.2.0] - 2026-09-18
+
+### Added
+- Favorites menu redesigned: a star button next to the search bar opens a dropdown (replacing the always-visible row below it), with a blurred backdrop while it's open
+- Up/down buttons to reorder favorites
+- Air quality detail modal: click the air quality number for the exact category, European AQI, US AQI, pollutant levels (PM2.5, PM10, NO₂, O₃, SO₂, CO), and pollen counts (Europe only, hidden elsewhere)
+- Date shown next to the clock
+
+### Changed
+- Clock/date text sharpened (brighter color, layered shadow) for legibility over the background photo
+
+### Fixed
+- iOS Safari zooming the whole page in when tapping the search input (its font-size was under the 16px threshold that triggers it)
+
 ## [1.1.1] - 2026-09-18
 
 ### Fixed
