@@ -421,7 +421,7 @@ input#cityInput::placeholder { color: var(--text-dim); }
 }
 
 .primary .temp-block {
-  text-align: right;
+  text-align: center;
 }
 
 .primary .temp {

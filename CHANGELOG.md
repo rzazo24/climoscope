@@ -4,6 +4,11 @@ All notable changes to this project are documented in this file, generated
 from the git history. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [SemVer](https://semver.org/).
 
+## [1.4.5] - 2026-09-19
+
+### Fixed
+- Temperature and weather description were right-aligned against the panel's edge instead of centered under each other
+
 ## [1.4.4] - 2026-09-19
 
 ### Changed
