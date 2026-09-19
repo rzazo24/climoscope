@@ -110,6 +110,8 @@ const STRINGS = {
     moveDown: 'Move down',
     favoriteAria: 'Toggle favorite',
     geoAria: 'Use my location',
+    unitAria: 'Switch temperature unit',
+    langAria: 'Switch language',
     locating: 'Locating...',
     myLocation: 'My location',
     geoError: 'Could not get your location. Check permissions and try again.',
@@ -162,6 +164,8 @@ const STRINGS = {
     moveDown: 'Bajar',
     favoriteAria: 'Marcar como favorito',
     geoAria: 'Usar mi ubicación',
+    unitAria: 'Cambiar unidad de temperatura',
+    langAria: 'Cambiar idioma',
     locating: 'Localizando...',
     myLocation: 'Mi ubicación',
     geoError: 'No se pudo obtener tu ubicación. Revisa los permisos e inténtalo de nuevo.',
@@ -349,7 +353,8 @@ if (!('geolocation' in navigator)) {
 
 // Best-effort reverse geocoding via Nominatim (OpenStreetMap) so "use my location"
 // can show a real place name. No API key, but usage requires attribution (see
-// the footer) and is only ever triggered by this one explicit user action.
+// the footer). Triggered by the geolocation button below, and also by the
+// init loading a shared ?lat&lon URL that has no ?name (see getSharedCityFromUrl).
 async function reverseGeocode(lat, lon) {
   try {
     const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=10&accept-language=${lang}`;
@@ -519,7 +524,8 @@ function renderFavorites() {
 }
 
 // Shared full-screen blur backdrop: stays visible as long as *any* overlay
-// that uses it (favorites menu, AQI detail modal) is open.
+// that uses it (favorites menu, AQI detail modal, precipitation detail
+// modal) is open.
 function refreshBackdrop() {
   const anyOpen = favoritesMenu.classList.contains('open')
     || aqiModal.style.display !== 'none'
@@ -529,6 +535,7 @@ function refreshBackdrop() {
 
 function setFavoritesMenuOpen(open) {
   favoritesMenu.classList.toggle('open', open);
+  favoritesBtn.setAttribute('aria-expanded', String(open));
   refreshBackdrop();
 }
 
@@ -671,7 +678,9 @@ favoritesBtn.addEventListener('click', () => {
 function loadLastCity() {
   try {
     const raw = localStorage.getItem(LAST_CITY_KEY);
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed && Number.isFinite(parsed.lat) && Number.isFinite(parsed.lon) ? parsed : null;
   } catch (e) {
     console.warn('Could not read last city from localStorage', e);
     return null;
@@ -713,20 +722,28 @@ function getSharedCityFromUrl() {
   return { lat, lon, name: params.get('name') || '', country: params.get('country') || '' };
 }
 
+function copyShareUrlToClipboard(btn, shareUrl) {
+  if (!(navigator.clipboard && navigator.clipboard.writeText)) return;
+  navigator.clipboard.writeText(shareUrl).then(() => {
+    const original = btn.innerHTML;
+    btn.innerHTML = CHECK_SVG;
+    setTimeout(() => { btn.innerHTML = original; }, 1200);
+  }).catch(() => {});
+}
+
 function shareCity(btn, name, country, lat, lon) {
   const shareUrl = `${window.location.origin}${window.location.pathname}?${cityUrlParams(name, country, lat, lon).toString()}`;
 
   if (navigator.share) {
-    navigator.share({ title: 'climoscope', text: name, url: shareUrl }).catch(() => {});
+    navigator.share({ title: 'climoscope', text: name, url: shareUrl }).catch((e) => {
+      // AbortError means the user dismissed the native share sheet themselves
+      // — respect that instead of silently falling back to the clipboard.
+      if (e && e.name === 'AbortError') return;
+      copyShareUrlToClipboard(btn, shareUrl);
+    });
     return;
   }
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      const original = btn.innerHTML;
-      btn.innerHTML = CHECK_SVG;
-      setTimeout(() => { btn.innerHTML = original; }, 1200);
-    }).catch(() => {});
-  }
+  copyShareUrlToClipboard(btn, shareUrl);
 }
 
 // ---------- Unit preference (persisted in localStorage) ----------
@@ -771,6 +788,7 @@ function saveLang() {
 unitToggle.addEventListener('click', () => {
   unit = unit === 'C' ? 'F' : 'C';
   unitToggle.textContent = '°' + unit;
+  unitToggle.setAttribute('aria-pressed', String(unit === 'F'));
   saveUnit();
   if (lastData) renderAll(lastData);
 });
@@ -779,7 +797,11 @@ unitToggle.addEventListener('click', () => {
 function applyStaticText() {
   document.documentElement.lang = lang;
   langToggle.textContent = lang.toUpperCase();
+  langToggle.setAttribute('aria-label', t('langAria'));
+  langToggle.setAttribute('aria-pressed', String(lang === 'es'));
   unitToggle.textContent = '°' + unit;
+  unitToggle.setAttribute('aria-label', t('unitAria'));
+  unitToggle.setAttribute('aria-pressed', String(unit === 'F'));
   cityInput.placeholder = t('placeholder');
   geoBtn.setAttribute('aria-label', t('geoAria'));
   document.querySelector('#hourlyPanel .section-title').textContent = t('hoursTitle');
@@ -839,6 +861,7 @@ async function loadWeather(lat, lon, name, country) {
       console.warn('Air quality unavailable', e);
     }
 
+    if (requestId !== weatherRequestId) return; // a newer city selection superseded this one while awaiting the JSON bodies above
     lastData = { data, airQuality, name, country, lat, lon };
     saveLastCity(name, country, lat, lon);
     updateUrlForCity(name, country, lat, lon);
@@ -877,11 +900,13 @@ function renderAll({ data, airQuality, name, country, lat, lon }) {
   const hourly = data.hourly;
   const [icon, desc] = wx(cur.weathercode);
 
-  setSky(cur.weathercode, cur.is_day === 1);
+  setSky(cur.weathercode, cur.is_day !== 0);
   updateClock(data.timezone);
 
-  // Compass rotation for wind direction
-  const windDeg = cur.wind_direction_10m || 0;
+  // Compass rotation for wind direction. Coerced to a number before going
+  // into the inline SVG's `rotate(...)` attribute below — defense in depth,
+  // since Open-Meteo always returns a number here today.
+  const windDeg = Number(cur.wind_direction_10m) || 0;
 
   // Current-hour index, reused below both for the UV reading and the hourly strip
   const currentHourIdx = currentHourIdxFor(hourly.time, data.timezone);
@@ -909,7 +934,7 @@ function renderAll({ data, airQuality, name, country, lat, lon }) {
         <div class="lbl">${t('feelsLike')}</div>
       </div>
       <div class="metric">
-        <div class="val">${cur.relative_humidity_2m}%</div>
+        <div class="val">${Math.round(cur.relative_humidity_2m)}%</div>
         <div class="lbl">${t('humidity')}</div>
       </div>
       <div class="metric">

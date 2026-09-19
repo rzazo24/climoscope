@@ -31,14 +31,14 @@
   <div class="search-wrap">
     <div class="search-row">
       <input id="cityInput" type="text" placeholder="Search city..." autocomplete="off">
-      <button id="favoritesBtn" class="toggle-btn" aria-label="Favorites">
+      <button id="favoritesBtn" class="toggle-btn" aria-label="Favorites" aria-expanded="false">
         <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
       </button>
       <button id="geoBtn" class="toggle-btn" aria-label="Use my location">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><line x1="1" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="23" y2="12"/></svg>
       </button>
-      <button id="unitToggle" class="toggle-btn">°C</button>
-      <button id="langToggle" class="toggle-btn" aria-label="Switch language">EN</button>
+      <button id="unitToggle" class="toggle-btn" aria-label="Switch temperature unit" aria-pressed="false">°C</button>
+      <button id="langToggle" class="toggle-btn" aria-label="Switch language" aria-pressed="false">EN</button>
     </div>
     <div class="suggestions" id="suggestions"></div>
     <div class="suggestions" id="favoritesMenu"></div>
@@ -61,7 +61,7 @@
   <footer>
     <div id="footerText">Data from Open-Meteo & OpenStreetMap</div>
     <div class="credit">Made with ❤️ by <a href="https://github.com/rzazo24" target="_blank" rel="noopener noreferrer">rzazo24</a></div>
-    <div class="version"><a href="https://github.com/rzazo24/climoscope/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer">v1.4.2</a></div>
+    <div class="version"><a href="https://github.com/rzazo24/climoscope/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer">v1.4.3</a></div>
   </footer>
 </div>
 

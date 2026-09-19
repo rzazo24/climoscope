@@ -32,3 +32,49 @@ test('sharing via clipboard (no navigator.share) shows a checkmark and restores 
   await new Promise((r) => setTimeout(r, 1250));
   assert.equal(btn.innerHTML, originalIcon, 'after the timeout, the original share icon must be restored, not left blank');
 });
+
+test('navigator.share failing for a real reason (not a user cancel) falls back to the clipboard', async () => {
+  const { elements } = loadApp({
+    fetchImpl: mockFetch([
+      ['v1/forecast', makeWeatherResponse()],
+      ['v1/air-quality', makeAirQualityResponse()],
+    ]),
+  });
+  await waitFor(() => elements.mainPanel.innerHTML.includes('metric'));
+
+  let clipboardWrites = 0;
+  global.navigator = {
+    share: () => Promise.reject(new DOMException('no data to share', 'DataError')),
+    clipboard: { writeText: async () => { clipboardWrites++; } },
+  };
+
+  const btn = elements.mainPanel.querySelector('.share-btn');
+  const originalIcon = btn.innerHTML;
+  btn.click();
+
+  await waitFor(() => clipboardWrites > 0);
+  await waitFor(() => btn.innerHTML !== originalIcon);
+  assert.equal(clipboardWrites, 1, 'a genuine share failure should fall back to copying the link');
+});
+
+test('the user cancelling the native share sheet (AbortError) does not fall back to the clipboard', async () => {
+  const { elements } = loadApp({
+    fetchImpl: mockFetch([
+      ['v1/forecast', makeWeatherResponse()],
+      ['v1/air-quality', makeAirQualityResponse()],
+    ]),
+  });
+  await waitFor(() => elements.mainPanel.innerHTML.includes('metric'));
+
+  let clipboardWrites = 0;
+  global.navigator = {
+    share: () => Promise.reject(new DOMException('share canceled', 'AbortError')),
+    clipboard: { writeText: async () => { clipboardWrites++; } },
+  };
+
+  const btn = elements.mainPanel.querySelector('.share-btn');
+  btn.click();
+
+  await new Promise((r) => setTimeout(r, 30));
+  assert.equal(clipboardWrites, 0, 'the user explicitly cancelling the share sheet must not silently copy the link instead');
+});

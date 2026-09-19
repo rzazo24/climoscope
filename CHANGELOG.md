@@ -4,6 +4,17 @@ All notable changes to this project are documented in this file, generated
 from the git history. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [SemVer](https://semver.org/).
 
+## [1.4.3] - 2026-09-19
+
+### Added
+- `aria-pressed` on the unit and language toggles, `aria-expanded` on the favorites button, and a translated `aria-label` on the unit toggle (was relying on its visible "°C"/"°F" text alone)
+
+### Changed
+- Footer and the "climoscope" brand text gained the same text-shadow the clock already had, for legibility over bright patches of the random background photo
+- Sharing: if `navigator.share` fails for a real reason, it now falls back to copying the link (previously only happened when `navigator.share` didn't exist at all); explicitly cancelling the native share sheet is still treated as "do nothing", not a failure
+- A stale weather response can no longer render if an even newer city selection resolves first (re-checked the request-id guard after all the response's `await`s, not just before them)
+- Minor: a corrupted `climoscope:lastCity` in localStorage now falls back to the Madrid default instead of trying to load an invalid city on startup; a missing/non-standard `is_day` from the API is treated as daytime instead of night; wind direction and humidity are coerced to numbers before being interpolated into rendered markup
+
 ## [1.4.2] - 2026-09-19
 
 ### Fixed
