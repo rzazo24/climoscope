@@ -4,6 +4,11 @@ All notable changes to this project are documented in this file, generated
 from the git history. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [SemVer](https://semver.org/).
 
+## [1.4.6] - 2026-09-19
+
+### Added
+- A static fallback icon for the masthead robot avatar, shown if RoboHash doesn't respond within 4s or errors out — some networks can't reach robohash.org at all, and the spot next to the logo no longer stays empty indefinitely in that case
+
 ## [1.4.5] - 2026-09-19
 
 ### Fixed

@@ -50,6 +50,16 @@ const CHECK_SVG = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" s
 const CHEVRON_UP_SVG = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>';
 const CHEVRON_DOWN_SVG = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
 
+// Static stand-in for the RoboHash avatar (#robotAvatar is an <img>, which
+// can't hold inline SVG/currentColor like the icons above — used as a data
+// URI instead, with the color baked in to match --text-dim). Shown if
+// RoboHash errors, or hasn't responded within ROBOT_TIMEOUT_MS (it's flaky
+// enough from some networks that waiting on the browser's own, much longer,
+// connection timeout left the spot next to the logo empty for a long time).
+const ROBOT_FALLBACK_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#8b98ad" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="5"/><rect x="4" y="5" width="16" height="14" rx="4"/><circle cx="9" cy="12" r="1" fill="#8b98ad" stroke="none"/><circle cx="15" cy="12" r="1" fill="#8b98ad" stroke="none"/><line x1="9" y1="16" x2="15" y2="16"/></svg>';
+const ROBOT_FALLBACK_SRC = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(ROBOT_FALLBACK_SVG)}`;
+const ROBOT_TIMEOUT_MS = 4000;
+
 const WEATHER = {
   0: { icon: '☀️', en: 'Clear sky', es: 'Despejado' },
   1: { icon: '🌤️', en: 'Mostly clear', es: 'Mayormente despejado' },
@@ -310,8 +320,29 @@ function setRandomBackgroundPhoto() {
 function setRandomRobot() {
   const seed = Math.random().toString(36).slice(2);
   robotAvatar.style.visibility = 'hidden';
-  robotAvatar.onload = () => { robotAvatar.style.visibility = 'visible'; };
-  robotAvatar.onerror = () => { robotAvatar.style.visibility = 'hidden'; };
+
+  let settled = false;
+  const useFallback = () => {
+    if (settled) return;
+    settled = true;
+    clearTimeout(timeoutId);
+    robotAvatar.onload = () => { robotAvatar.style.visibility = 'visible'; };
+    robotAvatar.onerror = null;
+    robotAvatar.src = ROBOT_FALLBACK_SRC;
+  };
+
+  robotAvatar.onload = () => {
+    if (settled) return; // the timeout below already switched to the fallback
+    settled = true;
+    clearTimeout(timeoutId);
+    robotAvatar.style.visibility = 'visible';
+  };
+  robotAvatar.onerror = useFallback;
+  const timeoutId = setTimeout(useFallback, ROBOT_TIMEOUT_MS);
+  // Node's timer (unlike a browser's) would otherwise keep a test process
+  // alive for the full timeout even after the test itself has finished.
+  if (typeof timeoutId.unref === 'function') timeoutId.unref();
+
   robotAvatar.src = `https://robohash.org/${encodeURIComponent(seed)}.png?set=set1&size=64x64`;
 }
 
