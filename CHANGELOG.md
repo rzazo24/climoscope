@@ -4,6 +4,11 @@ All notable changes to this project are documented in this file, generated
 from the git history. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [SemVer](https://semver.org/).
 
+## [1.4.4] - 2026-09-19
+
+### Changed
+- The air quality and precipitation detail modals' scrollbar (shown when the content overflows) restyled to match the app instead of the browser's default gray scrollbar — same thin, rounded, panel-colored style already used by the hourly forecast strip
+
 ## [1.4.3] - 2026-09-19
 
 ### Added

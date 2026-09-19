@@ -211,6 +211,22 @@ input#cityInput::placeholder { color: var(--text-dim); }
   width: 100%;
   max-height: 80vh;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--panel-line) transparent;
+}
+
+.detail-modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+.detail-modal-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+.detail-modal-content::-webkit-scrollbar-thumb {
+  background: var(--panel-line);
+  border-radius: 3px;
+}
+.detail-modal-content::-webkit-scrollbar-thumb:hover {
+  background: var(--amber);
 }
 
 .detail-modal-header {
