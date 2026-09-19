@@ -61,7 +61,7 @@
   <footer>
     <div id="footerText">Data from Open-Meteo & OpenStreetMap</div>
     <div class="credit">Made with ❤️ by <a href="https://github.com/rzazo24" target="_blank" rel="noopener noreferrer">rzazo24</a></div>
-    <div class="version"><a href="https://github.com/rzazo24/climoscope/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer">v1.4.1</a></div>
+    <div class="version"><a href="https://github.com/rzazo24/climoscope/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer">v1.4.2</a></div>
   </footer>
 </div>
 
@@ -70,7 +70,7 @@
   <button id="updateBannerBtn">Reload</button>
 </div>
 
-<div class="detail-modal" id="aqiModal" style="display:none;">
+<div class="detail-modal" id="aqiModal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="aqiModalTitle">
   <div class="detail-modal-content">
     <div class="detail-modal-header">
       <span id="aqiModalTitle">Air quality</span>
@@ -82,7 +82,7 @@
   </div>
 </div>
 
-<div class="detail-modal" id="precipModal" style="display:none;">
+<div class="detail-modal" id="precipModal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="precipModalTitle">
   <div class="detail-modal-content">
     <div class="detail-modal-header">
       <span id="precipModalTitle">Precipitation</span>

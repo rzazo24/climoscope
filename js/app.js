@@ -46,6 +46,7 @@ let weatherRequestId = 0; // guards against out-of-order weather responses
 // that look different per OS/font.
 const STAR_SVG = '<svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>';
 const SHARE_SVG = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>';
+const CHECK_SVG = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
 const CHEVRON_UP_SVG = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>';
 const CHEVRON_DOWN_SVG = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
 
@@ -207,6 +208,7 @@ const AQI_LEVELS = [
 ];
 
 function aqiInfo(aqi) {
+  if (!Number.isFinite(aqi)) return null;
   const level = AQI_LEVELS.find((l) => aqi <= l.max) || AQI_LEVELS[AQI_LEVELS.length - 1];
   return { label: level[lang], color: level.color };
 }
@@ -315,14 +317,16 @@ cityInput.addEventListener('input', () => {
   clearTimeout(searchDebounce);
   const q = cityInput.value.trim();
   if (q.length < 2) {
+    searchRequestId++; // discard any suggestions request still in flight
     suggestionsEl.classList.remove('open');
+    suggestionsEl.innerHTML = '';
     return;
   }
   searchDebounce = setTimeout(() => fetchSuggestions(q), 350);
 });
 
 cityInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
+  if (e.key === 'Enter' && suggestionsEl.classList.contains('open')) {
     const first = suggestionsEl.querySelector('.suggestion-item:not(.empty)');
     if (first) first.click();
   }
@@ -331,6 +335,7 @@ cityInput.addEventListener('keydown', (e) => {
 document.addEventListener('click', (e) => {
   if (!suggestionsEl.contains(e.target) && e.target !== cityInput) {
     suggestionsEl.classList.remove('open');
+    suggestionsEl.innerHTML = '';
   }
   if (!favoritesMenu.contains(e.target) && !favoritesBtn.contains(e.target)) {
     setFavoritesMenuOpen(false);
@@ -417,6 +422,7 @@ function renderSuggestions(results) {
     item.addEventListener('click', () => {
       const { lat, lon, name, country } = item.dataset;
       suggestionsEl.classList.remove('open');
+      suggestionsEl.innerHTML = '';
       cityInput.value = '';
       loadWeather(parseFloat(lat), parseFloat(lon), name, country);
     });
@@ -433,7 +439,9 @@ function loadFavorites() {
   try {
     const raw = localStorage.getItem(FAVORITES_KEY);
     const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed : [];
+    return Array.isArray(parsed)
+      ? parsed.filter((c) => c && Number.isFinite(c.lat) && Number.isFinite(c.lon))
+      : [];
   } catch (e) {
     console.warn('Could not read favorite cities from localStorage', e);
     return [];
@@ -524,14 +532,32 @@ function setFavoritesMenuOpen(open) {
   refreshBackdrop();
 }
 
+// Trigger buttons for each modal, so focus can return to them on close —
+// keyboard/screen-reader users would otherwise land back at the top of the
+// page instead of where they opened the modal from.
+let aqiModalTrigger = null;
+let precipModalTrigger = null;
+
 function setAqiModalOpen(open) {
   aqiModal.style.display = open ? 'flex' : 'none';
   refreshBackdrop();
+  if (open) {
+    aqiModalClose.focus();
+  } else if (aqiModalTrigger) {
+    aqiModalTrigger.focus();
+    aqiModalTrigger = null;
+  }
 }
 
 function setPrecipModalOpen(open) {
   precipModal.style.display = open ? 'flex' : 'none';
   refreshBackdrop();
+  if (open) {
+    precipModalClose.focus();
+  } else if (precipModalTrigger) {
+    precipModalTrigger.focus();
+    precipModalTrigger = null;
+  }
 }
 
 menuBackdrop.addEventListener('click', () => {
@@ -555,6 +581,16 @@ precipModal.addEventListener('click', (e) => {
   if (e.target === precipModal) setPrecipModalOpen(false);
 });
 
+// Escape closes whichever modal has focus. Relies on setAqiModalOpen(true)/
+// setPrecipModalOpen(true) moving focus inside the modal on open, so a
+// keydown there bubbles up to this listener.
+aqiModal.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') setAqiModalOpen(false);
+});
+precipModal.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') setPrecipModalOpen(false);
+});
+
 function fmtPollutant(v) {
   return v != null ? `${Math.round(v)} µg/m³` : '—';
 }
@@ -567,6 +603,7 @@ function openAqiModal() {
   if (!lastData || !lastData.airQuality) return;
   const aq = lastData.airQuality;
   const info = aqiInfo(aq.european_aqi);
+  if (!info) return;
 
   // Pollen is only reported by Open-Meteo for the European CAMS domain — every
   // field comes back null outside it, so only show the section when at least
@@ -685,9 +722,9 @@ function shareCity(btn, name, country, lat, lon) {
   }
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(shareUrl).then(() => {
-      const original = btn.textContent;
-      btn.textContent = '✓';
-      setTimeout(() => { btn.textContent = original; }, 1200);
+      const original = btn.innerHTML;
+      btn.innerHTML = CHECK_SVG;
+      setTimeout(() => { btn.innerHTML = original; }, 1200);
     }).catch(() => {});
   }
 }
@@ -813,6 +850,27 @@ async function loadWeather(lat, lon, name, country) {
   }
 }
 
+// hourly.time comes back from Open-Meteo already in the city's local time but
+// with no UTC offset ("2024-07-01T20:00"). `new Date(...)` parses that as the
+// *device's* local time, so comparing it against `new Date()` (also device
+// time) picks the wrong index whenever the device isn't in the city's
+// timezone. Reconstruct "now" as the city would format it instead, and match
+// that string directly; fall back to the old device-time comparison if the
+// timezone is missing/invalid.
+function currentHourIdxFor(times, tz) {
+  try {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: tz, hourCycle: 'h23',
+      year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit',
+    }).formatToParts(new Date());
+    const g = (type) => parts.find((p) => p.type === type).value;
+    const key = `${g('year')}-${g('month')}-${g('day')}T${g('hour')}:00`;
+    const i = times.findIndex((t) => t.startsWith(key));
+    if (i >= 0) return i;
+  } catch (e) { /* unknown timezone or no Intl data: fall through */ }
+  return Math.max(0, times.findIndex((t) => new Date(t) >= new Date()));
+}
+
 function renderAll({ data, airQuality, name, country, lat, lon }) {
   const cur = data.current;
   const daily = data.daily;
@@ -826,10 +884,9 @@ function renderAll({ data, airQuality, name, country, lat, lon }) {
   const windDeg = cur.wind_direction_10m || 0;
 
   // Current-hour index, reused below both for the UV reading and the hourly strip
-  const now = new Date();
-  const currentHourIdx = Math.max(0, hourly.time.findIndex(time => new Date(time) >= now));
+  const currentHourIdx = currentHourIdxFor(hourly.time, data.timezone);
   const uvIndex = hourly.uv_index ? hourly.uv_index[currentHourIdx] : null;
-  const aqi = airQuality != null ? aqiInfo(airQuality.european_aqi) : null;
+  const aqi = airQuality ? aqiInfo(airQuality.european_aqi) : null;
 
   mainPanel.innerHTML = `
     <div class="primary">
@@ -876,7 +933,7 @@ function renderAll({ data, airQuality, name, country, lat, lon }) {
         <div class="lbl">${t('uvIndex')}</div>
       </div>
       <div class="metric">
-        <div class="val aqi-val clickable-metric"${aqi ? ` style="color:${aqi.color}" title="${aqi.label}"` : ''}>${airQuality != null ? Math.round(airQuality.european_aqi) : '—'}</div>
+        <button type="button" class="val aqi-val clickable-metric"${aqi ? ` style="color:${aqi.color}" title="${aqi.label}"` : ''}>${aqi ? Math.round(airQuality.european_aqi) : '—'}</button>
         <div class="lbl">${t('airQuality')}</div>
       </div>
       <div class="metric">
@@ -884,7 +941,7 @@ function renderAll({ data, airQuality, name, country, lat, lon }) {
         <div class="lbl">${t('pressure')}</div>
       </div>
       <div class="metric">
-        <div class="val precip-val clickable-metric">${fmtMm(daily.precipitation_sum[0])}</div>
+        <button type="button" class="val precip-val clickable-metric">${fmtMm(daily.precipitation_sum[0])}</button>
         <div class="lbl">${t('precipitation')}</div>
       </div>
     </div>
@@ -902,9 +959,9 @@ function renderAll({ data, airQuality, name, country, lat, lon }) {
   mainPanel.querySelector('.fav-btn').addEventListener('click', () => toggleFavorite(name, country, lat, lon));
   mainPanel.querySelector('.share-btn').addEventListener('click', (e) => shareCity(e.currentTarget, name, country, lat, lon));
   if (aqi) {
-    mainPanel.querySelector('.aqi-val').addEventListener('click', openAqiModal);
+    mainPanel.querySelector('.aqi-val').addEventListener('click', (e) => { aqiModalTrigger = e.currentTarget; openAqiModal(); });
   }
-  mainPanel.querySelector('.precip-val').addEventListener('click', openPrecipModal);
+  mainPanel.querySelector('.precip-val').addEventListener('click', (e) => { precipModalTrigger = e.currentTarget; openPrecipModal(); });
 
   // Hourly: next 24h starting from current hour
   const startIdx = currentHourIdx;

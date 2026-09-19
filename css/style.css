@@ -454,6 +454,12 @@ input#cityInput::placeholder { color: var(--text-dim); }
   text-decoration-style: dotted;
   text-decoration-color: var(--panel-line);
   text-underline-offset: 3px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
 }
 
 .metric .lbl {

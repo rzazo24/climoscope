@@ -24,3 +24,26 @@ test('a malicious city/country name (e.g. from a hand-crafted share URL) is HTML
   assert.doesNotMatch(elements.mainPanel.innerHTML, /<b>hi<\/b>/);
   assert.match(elements.mainPanel.innerHTML, /&lt;img/);
 });
+
+// The same escaping has to hold for the favorites dropdown, whose contents
+// come back out of localStorage (i.e. from a previous session, not from the
+// API call that's in flight right now).
+test('a malicious favorite saved in localStorage is HTML-escaped in the favorites menu too', async () => {
+  const { elements } = loadApp({
+    fetchImpl,
+    localStorageSeed: {
+      'climoscope:favorites': JSON.stringify([
+        { name: '<img src=x onerror=alert(1)>', country: '</span><script>alert(1)</script>', lat: 1, lon: 2 },
+      ]),
+    },
+  });
+
+  await waitFor(() => elements.mainPanel.innerHTML.includes('metric'));
+
+  const menu = elements.favoritesMenu.innerHTML;
+  assert.doesNotMatch(menu, /<img/);
+  assert.doesNotMatch(menu, /<script>/);
+  assert.match(menu, /&lt;img/);
+  assert.doesNotMatch(menu, /No favorites yet/); // sanity: the list rendered, not the empty state
+});
+

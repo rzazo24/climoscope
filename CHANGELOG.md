@@ -4,6 +4,16 @@ All notable changes to this project are documented in this file, generated
 from the git history. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [SemVer](https://semver.org/).
 
+## [1.4.2] - 2026-09-19
+
+### Fixed
+- Share button (desktop, clipboard-copy path): copying a link left the button permanently empty after the checkmark's 1.2s timeout instead of restoring the icon
+- Air quality metric showing misleading values when the air-quality API responds without a usable European AQI: `null` rendered as "0 Good", a missing field rendered as "NaN Extremely Poor" — now shows "—" and the detail modal doesn't open
+- A malformed `favorites` entry in localStorage (e.g. hand-edited or from an older format) could crash the entire app on load instead of just being skipped
+- "Now" in the hourly strip, and the UV index reading, used the device's local hour instead of the viewed city's — wrong by hours when browsing a city outside your own timezone (e.g. checking Tokyo's weather from Madrid)
+- Autocomplete: clearing the search box while a suggestions request was still in flight no longer reopens the dropdown with results for the abandoned query; pressing Enter right after picking a city no longer silently reloads a stale, already-selected suggestion
+- Air quality and precipitation detail cards are real `<button>`s now (were `<div>`s with a click handler), so they're reachable and operable by keyboard/screen readers; both detail modals close on Escape and manage focus (move into the modal on open, return to the triggering button on close), and gained `role="dialog"`/`aria-modal`/`aria-labelledby`
+
 ## [1.4.1] - 2026-09-18
 
 ### Fixed
