@@ -14,7 +14,29 @@
   --sky-glow: #3a4a5e;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--panel-line) transparent;
+}
+
+/* One scrollbar style for every scrollable area (page, modals, hourly strip) */
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--panel-line);
+  border-radius: 3px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--amber);
+}
 
 html {
   height: 100%;
@@ -211,22 +233,6 @@ input#cityInput::placeholder { color: var(--text-dim); }
   width: 100%;
   max-height: 80vh;
   overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--panel-line) transparent;
-}
-
-.detail-modal-content::-webkit-scrollbar {
-  width: 6px;
-}
-.detail-modal-content::-webkit-scrollbar-track {
-  background: transparent;
-}
-.detail-modal-content::-webkit-scrollbar-thumb {
-  background: var(--panel-line);
-  border-radius: 3px;
-}
-.detail-modal-content::-webkit-scrollbar-thumb:hover {
-  background: var(--amber);
 }
 
 .detail-modal-header {
@@ -508,22 +514,6 @@ input#cityInput::placeholder { color: var(--text-dim); }
   gap: 4px;
   overflow-x: auto;
   padding-bottom: 4px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--panel-line) transparent;
-}
-
-.hourly-scroll::-webkit-scrollbar {
-  height: 6px;
-}
-.hourly-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-.hourly-scroll::-webkit-scrollbar-thumb {
-  background: var(--panel-line);
-  border-radius: 3px;
-}
-.hourly-scroll::-webkit-scrollbar-thumb:hover {
-  background: var(--amber);
 }
 
 .hour-col {

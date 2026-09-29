@@ -4,6 +4,11 @@ All notable changes to this project are documented in this file, generated
 from the git history. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [SemVer](https://semver.org/).
 
+## [1.4.7] - 2026-09-29
+
+### Changed
+- All scrollbars (page, detail modals, hourly strip) now share one thin, rounded, app-themed style via a single global rule, instead of only the hourly strip and detail modals having it
+
 ## [1.4.6] - 2026-09-19
 
 ### Added
