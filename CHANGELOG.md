@@ -4,6 +4,11 @@ All notable changes to this project are documented in this file, generated
 from the git history. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [SemVer](https://semver.org/).
 
+## [1.4.10] - 2026-10-01
+
+### Changed
+- Fog weather icon enlarged to match the visual size of the other (emoji) weather icons
+
 ## [1.4.9] - 2026-09-30
 
 ### Fixed

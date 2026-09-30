@@ -62,7 +62,7 @@ const ROBOT_TIMEOUT_MS = 4000;
 
 // 🌫️ renders as a flat gray texture square on Apple/Noto (no pictogram), which
 // looks like a broken image next to the other emoji — drawn as an inline SVG instead.
-const FOG_ICON = '<svg viewBox="0 0 24 24" width="1em" height="1em" style="vertical-align:-0.15em" fill="none" stroke="#c5cdd9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13a4.5 4.5 0 0 1 .6-8.9A5.5 5.5 0 0 1 18 6.5 3.5 3.5 0 0 1 17.5 13"/><line x1="3" y1="17" x2="21" y2="17"/><line x1="6" y1="21" x2="18" y2="21"/></svg>';
+const FOG_ICON = '<svg viewBox="0 0 24 24" width="1.3em" height="1.3em" style="vertical-align:-0.3em" fill="none" stroke="#c5cdd9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13a4.5 4.5 0 0 1 .6-8.9A5.5 5.5 0 0 1 18 6.5 3.5 3.5 0 0 1 17.5 13"/><line x1="3" y1="17" x2="21" y2="17"/><line x1="6" y1="21" x2="18" y2="21"/></svg>';
 
 const WEATHER = {
   0: { icon: '☀️', en: 'Clear sky', es: 'Despejado' },
