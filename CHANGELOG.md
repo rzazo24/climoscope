@@ -4,6 +4,11 @@ All notable changes to this project are documented in this file, generated
 from the git history. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [SemVer](https://semver.org/).
 
+## [1.4.9] - 2026-09-30
+
+### Fixed
+- The site failed to load (blank page): 1.4.8 accidentally shipped an empty `index.html`. Restored; 1.4.8 should be skipped
+
 ## [1.4.8] - 2026-09-30
 
 ### Fixed
