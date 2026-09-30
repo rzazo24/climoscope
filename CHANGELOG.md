@@ -4,6 +4,11 @@ All notable changes to this project are documented in this file, generated
 from the git history. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [SemVer](https://semver.org/).
 
+## [1.4.8] - 2026-09-30
+
+### Fixed
+- Fog/freezing fog weather icon showed up as a flat gray square (the 🌫️ emoji has no pictogram on some platforms) and looked like a broken image next to the other icons — replaced with an inline SVG
+
 ## [1.4.7] - 2026-09-29
 
 ### Changed
